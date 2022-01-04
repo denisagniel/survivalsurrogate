@@ -1,4 +1,4 @@
-estimate_cont <- function(data, folds, x, y, include_train, lrnr, task_name) {
+estimate_cont <- function(data, folds, id, x, y, include_train, lrnr, task_name) {
   data <- mutate(data, row_id = 1:nrow(data))
 
   xy_dat <- select(data, any_of(c(x, y)))
@@ -13,5 +13,6 @@ estimate_cont <- function(data, folds, x, y, include_train, lrnr, task_name) {
                                          test_ids = which(all_folds == .),
                                          lrnr = lrnr))
   predictions <- rename(predictions, !!task_name := pred)
-  inner_join(data, predictions)
+  out <- inner_join(data, predictions, by = 'row_id')
+  select(out, !!id, !!task_name)
 }

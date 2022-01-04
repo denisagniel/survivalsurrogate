@@ -14,9 +14,9 @@ estimate_Q_j <- function(data, folds, id, x, g, a_jm1, a_j, y_jm1, y_j, sbar_jm1
 
   at_risk_data <- mutate(at_risk_data, muQ = !!sym(mu_jp1)*!!sym(Q_jp1))
   at_risk_data <- mutate(at_risk_data, muQ = ifelse(!include_in_training, 0, muQ))
-  Q_j <- estimate_cont(at_risk_data, folds, c(x, sbar_jm1), 'muQ', 'include_in_training', lrnr, paste0('Q', gval, '_', j))
-  Q_j <- select(Q_j, -row_id, -include_in_training, -muQ)
-  out_Q <- left_join(data, Q_j)
+  Q_j <- estimate_cont(at_risk_data, folds, id, c(x, sbar_jm1), 'muQ', 'include_in_training', lrnr, paste0('Q', gval, '_', j))
+  Q_j <- select(Q_j, !!id, !!paste0('Q', gval, '_', j))
+  out_Q <- left_join(data, Q_j, by = id)
   out_Q
 }
 
@@ -34,6 +34,6 @@ estimate_Q_mat <- function(data, folds, id, x, g, all_a, all_y, all_s, all_mu, g
   }
   if (slim) {
     return(select(Q_dat, !!id, paste0('Q', gval, '_', 1:tt)))
-  } else return(Q_dat)
-
+  } else
+  Q_dat
 }

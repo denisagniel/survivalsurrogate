@@ -12,6 +12,7 @@ ipw_delta_s <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NUL
                                              x = x,
                                              g = g,
                                              lrnr = binary_lrnr)
+    e <- 'e'
   }
   if (all(is.null(pi))) {
     if (verbose) {
@@ -26,6 +27,7 @@ ipw_delta_s <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NUL
                            all_y = y,
                            all_s = s,
                            lrnr = binary_lrnr)
+    pi <- paste0('pi1_', 1:tt)
   }
   if (all(is.null(pistar))) {
     if (verbose) {
@@ -40,6 +42,7 @@ ipw_delta_s <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NUL
                                    all_y = y,
                                    all_s = s,
                                    lrnr = binary_lrnr)
+    pistar <- paste0('pistar_', 1:tt)
   }
   if (all(is.null(gamma1))) {
     if (!all(is.null(a))) {
@@ -62,6 +65,7 @@ ipw_delta_s <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NUL
         analysis_data <- mutate(analysis_data, !!glue('gamma1_{t}') := 1)
       }
     }
+    gamma1 <- paste0('gamma1_', 1:tt)
   }
   if (all(is.null(gamma0))) {
     if (!all(is.null(a))) {
@@ -83,6 +87,7 @@ ipw_delta_s <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NUL
         analysis_data <- mutate(analysis_data, !!glue('gamma0_{t}') := 1)
       }
     }
+    gamma0 <- paste0('gamma0_', 1:tt)
   }
 
   # analysis_data <- mutate(analysis_data,
@@ -108,16 +113,15 @@ ipw_delta_s <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NUL
   #                        ipw_num_1 = prod(c_across(any_of(c(g, a, y)) | contains('pistar'))),
   #                        ipw_denom_1 = prod(c_across(contains('gamma1') | starts_with('pi_')))
 
-  pistar_m <- ds_to_matrix(analysis_data, 'pistar_', tt_s)
-  pi1_m <- ds_to_matrix(analysis_data, 'pi1_', tt_s)
-  pi0_m <- ds_to_matrix(analysis_data, 'pi0_', tt_s)
-  gamma1_m <- ds_to_matrix(analysis_data, 'gamma1_', tt)
-  gamma0_m <- ds_to_matrix(analysis_data, 'gamma0_', tt)
-  matprod <- function(m) apply(m, 1, prod)
+  pistar_m <- ds_to_matrix(analysis_data, pistar)
+  pi1_m <- ds_to_matrix(analysis_data, pi)
+  pi0_m <- 1 - pi1_m
+  gamma1_m <- ds_to_matrix(analysis_data, gamma1)
+  gamma0_m <- ds_to_matrix(analysis_data, gamma0)
 
   analysis_data <- mutate(analysis_data,
-         ipw_if1 = !!sym(g)/e*!!sym(y[tt])*matprod(pistar_m) / matprod(pi1_m) / matprod(gamma1_m),
-         ipw_if0 = (1-!!sym(g))/(1-e)*!!sym(y[tt])*matprod(1-pistar_m) / matprod(pi0_m) / matprod(gamma0_m),
+         ipw_if1 = !!sym(g)/!!sym(e)*!!sym(y[tt])*matprod(pistar_m) / matprod(pi1_m) / matprod(gamma1_m),
+         ipw_if0 = (1-!!sym(g))/(1-!!sym(e))*!!sym(y[tt])*matprod(1-pistar_m) / matprod(pi0_m) / matprod(gamma0_m),
          ipw_if = ifelse(!!sym(g) == 1, ipw_if1, -ipw_if0)
   )
   if_ds <- select(analysis_data, !!id, ipw_if)

@@ -74,7 +74,7 @@ gcomp_delta_s <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = N
 
   if (all(is.null(Qstar1))) {
     if (verbose) {
-      print('Qstar functions under treatent not provided in `Qstar1`. Estimating them.')
+      print('Qstar functions under treatment not provided in `Qstar1`. Estimating them.')
     }
     analysis_data <- estimate_Qstar_mat(data = analysis_data,
                                      folds = folds,
@@ -92,7 +92,7 @@ gcomp_delta_s <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = N
   }
   if (all(is.null(Qstar0))) {
     if (verbose) {
-      print('Qstar functions under treatent not provided in `Qstar1`. Estimating them.')
+      print('Qstar functions under control not provided in `Qstar0`. Estimating them.')
     }
     analysis_data <- estimate_Qstar_mat(data = analysis_data,
                                      folds = folds,

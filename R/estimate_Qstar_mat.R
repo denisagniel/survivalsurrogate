@@ -15,9 +15,9 @@ estimate_Qstar_j <- function(data, folds, id, x, a_jm1, a_j, y_jm1, y_j, sbar_jm
 
   at_risk_data <- mutate(at_risk_data, muQstar = !!sym(mu_jp1)*!!sym(Qstar_jp1))
   at_risk_data <- mutate(at_risk_data, muQstar = ifelse(!include_in_training, 0, muQstar))
-  Qstar_j <- estimate_cont(at_risk_data, folds, c(x, sbar_jm1), 'muQstar', 'include_in_training', lrnr, paste0('Qstar', gval, '_', j))
-  Qstar_j <- select(Qstar_j, -row_id, -include_in_training, -muQstar)
-  out_Qstar <- left_join(data, Qstar_j)
+  Qstar_j <- estimate_cont(at_risk_data, folds, id, c(x, sbar_jm1), 'muQstar', 'include_in_training', lrnr, paste0('Qstar', gval, '_', j))
+  Qstar_j <- select(Qstar_j, !!id, !!paste0('Qstar', gval, '_', j))
+  out_Qstar <- left_join(data, Qstar_j, by = id)
   out_Qstar
 }
 

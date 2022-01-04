@@ -34,7 +34,7 @@ gcomp_delta <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NUL
   }
   if (all(is.null(Q1))) {
     if (verbose) {
-      print('Q functions under treatent not provided in `Q1`. Estimating them.')
+      print('Q functions under treatment not provided in `Q1`. Estimating them.')
     }
     analysis_data <- estimate_Q_mat(data = analysis_data,
                                     folds = folds,
@@ -51,7 +51,7 @@ gcomp_delta <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NUL
   }
   if (all(is.null(Q0))) {
     if (verbose) {
-      print('Q functions under treatent not provided in `Q1`. Estimating them.')
+      print('Q functions under control not provided in `Q0`. Estimating them.')
     }
     analysis_data <- estimate_Q_mat(data = analysis_data,
                                     folds = folds,

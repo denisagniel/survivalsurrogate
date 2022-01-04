@@ -1,4 +1,4 @@
-estimate_binary <- function(data, folds, x, y, include_train, lrnr, task_name) {
+estimate_binary <- function(data, folds, id, x, y, include_train, lrnr, task_name) {
   if (lrnr$predict_type != 'prob') lrnr$predict_type <- 'prob'
   data <- mutate(data, row_id = 1:nrow(data))
 
@@ -17,5 +17,6 @@ estimate_binary <- function(data, folds, x, y, include_train, lrnr, task_name) {
                                          test_ids = which(all_folds == .),
                                          lrnr = lrnr))
   predictions <- rename(predictions, !!task_name := pred)
-  inner_join(data, predictions)
+  out_ds <- inner_join(data, predictions, by = 'row_id')
+  select(out_ds, !!id, !!task_name)
 }
