@@ -14,10 +14,11 @@ eif_delta_partj <- function(j, y, a, gamma, mu, Q, tt) {
   } else {
     ay_gamma_jm1 <- apply(ay_gamma[,1:(j-1),drop=FALSE], 1, prod)
   }
+
   if (j == tt) {
-    ay_gamma_jm1*a[,j]/gamma[,j]*(y[,j] - mu[,j])
+    tibble(!!glue('part{j}') := ay_gamma_jm1*a[,j]/gamma[,j]*(y[,j] - mu[,j]))
   } else {
-    ay_gamma_jm1*a[,j]/gamma[,j]*(y[,j]*mu[,j+1]*Q[,j+1] - mu[,j]*Q[,j])
+    tibble(!!glue('part{j}') := ay_gamma_jm1*a[,j]/gamma[,j]*(y[,j]*mu[,j+1]*Q[,j+1] - mu[,j]*Q[,j]))
   }
 
 }
