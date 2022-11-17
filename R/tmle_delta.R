@@ -1,19 +1,19 @@
-plugin_delta <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NULL, cont_lrnr = NULL, e = NULL, gamma1 = NULL, gamma0 = NULL, mu1 = NULL, mu0 = NULL, Q1 = NULL, Q0 = NULL, Qstar1 = NULL, Qstar0 = NULL, truncate_e = 1e-12, verbose = FALSE) {
+tmle_delta <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NULL, cont_lrnr = NULL, e = NULL, gamma1 = NULL, gamma0 = NULL, mu1 = NULL, mu0 = NULL, truncate_e = 1e-12, verbose = FALSE) {
   tt <- length(y)
   if (all(is.null(mu1))) {
     if (verbose) {
       print('Hazards under treatment not provided in `mu1`. Estimating them.')
     }
     analysis_data <- estimate_mu_mat(data = data,
-                                folds = folds,
-                                id = id,
-                                x = x,
-                                g = g,
-                                all_a = a,
-                                all_y = y,
-                                all_s = s,
-                                gval = 1,
-                                lrnr = binary_lrnr)
+                                     folds = folds,
+                                     id = id,
+                                     x = x,
+                                     g = g,
+                                     all_a = a,
+                                     all_y = y,
+                                     all_s = s,
+                                     gval = 1,
+                                     lrnr = binary_lrnr)
     mu1 <- paste0('mu1_', 1:tt)
   } else analysis_data <- data
   if (all(is.null(mu0))) {
@@ -21,50 +21,16 @@ plugin_delta <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NU
       print('Hazards under control not provided in `mu0`. Estimating them.')
     }
     analysis_data <- estimate_mu_mat(data = analysis_data,
-                                folds = folds,
-                                id = id,
-                                x = x,
-                                g = g,
-                                all_a = a,
-                                all_y = y,
-                                all_s = s,
-                                gval = 0,
-                                lrnr = binary_lrnr)
+                                     folds = folds,
+                                     id = id,
+                                     x = x,
+                                     g = g,
+                                     all_a = a,
+                                     all_y = y,
+                                     all_s = s,
+                                     gval = 0,
+                                     lrnr = binary_lrnr)
     mu0 <- paste0('mu0_', 1:tt)
-  }
-  if (all(is.null(Q1))) {
-    if (verbose) {
-      print('Q functions under treatment not provided in `Q1`. Estimating them.')
-    }
-    analysis_data <- estimate_Q_mat(data = analysis_data,
-                             folds = folds,
-                             id = id,
-                             x = x,
-                             g = g,
-                             all_a = a,
-                             all_y = y,
-                             all_s = s,
-                             all_mu = mu1,
-                             gval = 1,
-                             lrnr = cont_lrnr)
-    Q1 <- paste0('Q1_', 1:tt)
-  }
-  if (all(is.null(Q0))) {
-    if (verbose) {
-      print('Q functions under control not provided in `Q0`. Estimating them.')
-    }
-    analysis_data <- estimate_Q_mat(data = analysis_data,
-                             folds = folds,
-                             id = id,
-                             x = x,
-                             g = g,
-                             all_a = a,
-                             all_y = y,
-                             all_s = s,
-                             all_mu = mu0,
-                             gval = 0,
-                             lrnr = cont_lrnr)
-    Q0 <- paste0('Q0_', 1:tt)
   }
   if (all(is.null(e))) {
     if (verbose) {
@@ -124,7 +90,34 @@ plugin_delta <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NU
       gamma0 <- paste0('gamma0_', 1:tt)
     }
   }
-
+  analysis_data <- estimate_Q_tmle(data = analysis_data,
+                                    folds = folds,
+                                    id = id,
+                                    x = x,
+                                    g = g,
+                                    all_a = a,
+                                    all_y = y,
+                                    all_s = s,
+                                    all_mu = mu1,
+                                   all_gamma = gamma1,
+                                   e = e,
+                                    gval = 1,
+                                    lrnr = cont_lrnr)
+  Q1 <- paste0('Q1_', 1:tt)
+  analysis_data <- estimate_Q_tmle(data = analysis_data,
+                                    folds = folds,
+                                    id = id,
+                                    x = x,
+                                    g = g,
+                                    all_a = a,
+                                    all_y = y,
+                                    all_s = s,
+                                    all_mu = mu0,
+                                   all_gamma = gamma0,
+                                   e = e,
+                                    gval = 0,
+                                    lrnr = cont_lrnr)
+  Q0 <- paste0('Q0_', 1:tt)
   analysis_data <- clean_up_ds(analysis_data, a, y,
                                truncate_e = truncate_e)
 
@@ -143,19 +136,21 @@ plugin_delta <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NU
 
   if_ds <- transmute(analysis_data,
                      !!id := id,
-                          eif = eif_delta(y = y_m,
-                                          a = a_m,
-                                          g = !!sym(g),
-                                          e = !!sym(e),
-                                          gamma0 = gamma0_m,
-                                          mu0 = mu0_m,
-                                          Q0 = Q0_m,
-                                          gamma1 = gamma1_m,
-                                          mu1 = mu1_m,
-                                          Q1 = Q1_m))
-  summarise(if_ds,
-            plugin_est = mean(eif),
-            plugin_se = sd(eif)/sqrt(n()),
-            if_data = list(if_ds))
+                     Q1_0,
+                     Q0_0,
+                     eif = eif_delta(y = y_m,
+                                     a = a_m,
+                                     g = !!sym(g),
+                                     e = !!sym(e),
+                                     gamma0 = gamma0_m,
+                                     mu0 = mu0_m,
+                                     Q0 = Q0_m,
+                                     gamma1 = gamma1_m,
+                                     mu1 = mu1_m,
+                                     Q1 = Q1_m))
 
+  summarise(if_ds,
+            tmle_est = mean(Q1_0 - Q0_0),
+            tmle_se = sd(eif)/sqrt(n()),
+            if_data = list(if_ds))
 }

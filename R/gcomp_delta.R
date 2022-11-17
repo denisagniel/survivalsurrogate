@@ -2,7 +2,7 @@ gcomp_delta <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NUL
   tt <- length(y)
   if (all(is.null(mu1))) {
     if (verbose) {
-      print('Hazards under treatent not provided in `mu1`. Estimating them.')
+      print('Hazards under treatment not provided in `mu1`. Estimating them.')
     }
     analysis_data <- estimate_mu_mat(data = data,
                                      folds = folds,

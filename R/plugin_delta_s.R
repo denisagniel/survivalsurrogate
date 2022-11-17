@@ -1,8 +1,8 @@
-plugin_delta_s <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NULL, cont_lrnr = NULL, t0 = length(s), e = NULL, gamma1 = NULL, gamma0 = NULL, mu1 = NULL, mu0 = NULL, pi = NULL, pistar = NULL, Q1 = NULL, Q0 = NULL, Qstar1 = NULL, Qstar0 = NULL, truncate_e = 1e-12, verbose = FALSE) {
+plugin_delta_s <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NULL, cont_lrnr = NULL, t0 = length(s), e = NULL, gamma1 = NULL, gamma0 = NULL, mu1 = NULL, mu0 = NULL, pi = NULL, pistar = NULL, Q1 = NULL, Q0 = NULL, Qstar1 = NULL, Qstar0 = NULL, truncate_e = 1e-12, truncate_pi = 1e-12, verbose = FALSE) {
   tt <- length(y)
   if (all(is.null(mu1))) {
     if (verbose) {
-      print('Hazards under treatent not provided in `mu1`. Estimating them.')
+      print('Hazards under treatment not provided in `mu1`. Estimating them.')
     }
     analysis_data <- estimate_mu_mat(data = data,
                                 folds = folds,
@@ -209,7 +209,7 @@ plugin_delta_s <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = 
 
 
   if_ds <- transmute(analysis_data,
-                     !!id,
+                     !!id := id,
                           eif = eif_delta_s(y = y_m,
                                           a = a_m,
                                           g = !!sym(g),
