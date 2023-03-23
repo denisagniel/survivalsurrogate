@@ -98,7 +98,6 @@ tmle_delta <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NULL
                                     all_a = a,
                                     all_y = y,
                                     all_s = s,
-                                    all_mu = mu1,
                                    all_gamma = gamma1,
                                    e = e,
                                     gval = 1,
@@ -112,7 +111,6 @@ tmle_delta <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NULL
                                     all_a = a,
                                     all_y = y,
                                     all_s = s,
-                                    all_mu = mu0,
                                    all_gamma = gamma0,
                                    e = e,
                                     gval = 0,
@@ -150,7 +148,7 @@ tmle_delta <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NULL
                                      Q1 = Q1_m))
 
   summarise(if_ds,
-            tmle_est = mean(Q1_0 - Q0_0),
+            tmle_est = mean(Q1_1 - Q0_1),
             tmle_se = sd(eif)/sqrt(n()),
             if_data = list(if_ds))
 }
