@@ -1,37 +1,6 @@
 tmle_delta <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NULL, cont_lrnr = NULL, e = NULL, gamma1 = NULL, gamma0 = NULL, mu1 = NULL, mu0 = NULL, truncate_e = 1e-12, verbose = FALSE) {
   tt <- length(y)
-  if (all(is.null(mu1))) {
-    if (verbose) {
-      print('Hazards under treatment not provided in `mu1`. Estimating them.')
-    }
-    analysis_data <- estimate_mu_mat(data = data,
-                                     folds = folds,
-                                     id = id,
-                                     x = x,
-                                     g = g,
-                                     all_a = a,
-                                     all_y = y,
-                                     all_s = s,
-                                     gval = 1,
-                                     lrnr = binary_lrnr)
-    mu1 <- paste0('mu1_', 1:tt)
-  } else analysis_data <- data
-  if (all(is.null(mu0))) {
-    if (verbose) {
-      print('Hazards under control not provided in `mu0`. Estimating them.')
-    }
-    analysis_data <- estimate_mu_mat(data = analysis_data,
-                                     folds = folds,
-                                     id = id,
-                                     x = x,
-                                     g = g,
-                                     all_a = a,
-                                     all_y = y,
-                                     all_s = s,
-                                     gval = 0,
-                                     lrnr = binary_lrnr)
-    mu0 <- paste0('mu0_', 1:tt)
-  }
+  analysis_data <- data
   if (all(is.null(e))) {
     if (verbose) {
       print('Propensity scores not provided in `e`. Estimating them.')
@@ -128,23 +97,19 @@ tmle_delta <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NULL
   }
   Q0_m <- ds_to_matrix(analysis_data, Q0)
   Q1_m <- ds_to_matrix(analysis_data, Q1)
-  mu1_m <- ds_to_matrix(analysis_data, mu1)
-  mu0_m <- ds_to_matrix(analysis_data, mu0)
 
 
   if_ds <- transmute(analysis_data,
                      !!id := id,
                      Q1_1,
                      Q0_1,
-                     eif = eif_delta(y = y_m,
+                     eif = eif_delta_tml(y = y_m,
                                      a = a_m,
                                      g = !!sym(g),
                                      e = !!sym(e),
                                      gamma0 = gamma0_m,
-                                     mu0 = mu0_m,
                                      Q0 = Q0_m,
                                      gamma1 = gamma1_m,
-                                     mu1 = mu1_m,
                                      Q1 = Q1_m))
 
   summarise(if_ds,

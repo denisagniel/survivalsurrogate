@@ -22,7 +22,7 @@ estimate_Qj_tmle <- function(data, folds, id, x, g, a_jm1, a_j, y_jm1, y_j, sbar
   Q_nm <- paste0('Q', gval, '_', j)
   if (any(is.na(at_risk_data$Q_y))) browser()
   Q_j <- estimate_cont(at_risk_data, folds, id, c(x, sbar_jm1), 'Q_y', 'include_in_training', lrnr, Q_nm)
-  updated_data <- inner_join(at_risk_data, Q_j)
+  updated_data <- inner_join(at_risk_data, Q_j, by = id)
 
   updated_data <- mutate(rowwise(updated_data), wt_j = ifelse(gval == 1, !!sym(g)/!!sym(e)*!!sym(a_j)/prod(c_across(gammabar_j)), (1-!!sym(g))/(1-!!sym(e))*!!sym(a_j)/prod(c_across(gammabar_j))),
                          !!Q_nm := pmax(pmin(!!sym(Q_nm), 1-epsilon), epsilon)) ### this is a kluge
