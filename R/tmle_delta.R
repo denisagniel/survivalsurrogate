@@ -91,30 +91,30 @@ tmle_delta <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NULL
     }
   }
   analysis_data <- estimate_Q_tmle(data = analysis_data,
-                                    folds = folds,
-                                    id = id,
-                                    x = x,
-                                    g = g,
-                                    all_a = a,
-                                    all_y = y,
-                                    all_s = s,
+                                   folds = folds,
+                                   id = id,
+                                   x = x,
+                                   g = g,
+                                   all_a = a,
+                                   all_y = y,
+                                   all_s = s,
                                    all_gamma = gamma1,
                                    e = e,
-                                    gval = 1,
-                                    lrnr = cont_lrnr)
+                                   gval = 1,
+                                   lrnr = cont_lrnr)
   Q1 <- paste0('Q1_', 1:tt)
   analysis_data <- estimate_Q_tmle(data = analysis_data,
-                                    folds = folds,
-                                    id = id,
-                                    x = x,
-                                    g = g,
-                                    all_a = a,
-                                    all_y = y,
-                                    all_s = s,
+                                   folds = folds,
+                                   id = id,
+                                   x = x,
+                                   g = g,
+                                   all_a = a,
+                                   all_y = y,
+                                   all_s = s,
                                    all_gamma = gamma0,
                                    e = e,
-                                    gval = 0,
-                                    lrnr = cont_lrnr)
+                                   gval = 0,
+                                   lrnr = cont_lrnr)
   Q0 <- paste0('Q0_', 1:tt)
   analysis_data <- clean_up_ds(analysis_data, a, y,
                                truncate_e = truncate_e)
@@ -134,8 +134,8 @@ tmle_delta <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NULL
 
   if_ds <- transmute(analysis_data,
                      !!id := id,
-                     Q1_0,
-                     Q0_0,
+                     Q1_1,
+                     Q0_1,
                      eif = eif_delta(y = y_m,
                                      a = a_m,
                                      g = !!sym(g),
