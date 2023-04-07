@@ -8,13 +8,13 @@ estimate_Qj_tmle <- function(data, folds, id, x, g, a_jm1, a_j, y_jm1, y_j, sbar
     at_risk_data <- filter(at_risk_data, !is.na(!!sym(s_jm1)))
   }
 
-    if (!is.null(a_j)) {
-      at_risk_data <- mutate(at_risk_data, include_in_training = !!sym(g) == gval & !!sym(a_j) == 1)
-    } else {
-      at_risk_data <- mutate(at_risk_data, include_in_training = !!sym(g) == gval,
-                             a_j = 1)
-      a_j <- 'a_j'
-    }
+  if (!is.null(a_j)) {
+    at_risk_data <- mutate(at_risk_data, include_in_training = !!sym(g) == gval & !!sym(a_j) == 1)
+  } else {
+    at_risk_data <- mutate(at_risk_data, include_in_training = !!sym(g) == gval,
+                           a_j = 1)
+    a_j <- 'a_j'
+  }
 
 
   at_risk_data <- mutate(at_risk_data, Q_y = ifelse(!!sym(y_j) == 0, 0, !!sym(Q_jp1)))

@@ -1,4 +1,4 @@
-tmle_delta <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NULL, cont_lrnr = NULL, e = NULL, gamma1 = NULL, gamma0 = NULL, truncate_e = 1e-12, verbose = FALSE) {
+tmle_delta_s <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NULL, cont_lrnr = NULL, e = NULL, gamma1 = NULL, gamma0 = NULL, pi = NULL, pistar = NULL, truncate_e = 1e-12, verbose = FALSE) {
   tt <- length(y)
   analysis_data <- data
   if (all(is.null(e))) {
@@ -13,7 +13,36 @@ tmle_delta <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NULL
                                          lrnr = binary_lrnr)
     e <- 'e'
   }
-
+  if (all(is.null(pi))) {
+    if (verbose) {
+      print('Pis not provided in `pi`. Estimating them.')
+    }
+    analysis_data <- estimate_pi_mat(data = analysis_data,
+                                     folds = folds,
+                                     id = id,
+                                     x = x,
+                                     g = g,
+                                     all_a = a,
+                                     all_y = y,
+                                     all_s = s,
+                                     lrnr = binary_lrnr)
+    pi <- paste0('pi1_', 1:tt)
+  }
+  if (all(is.null(pistar))) {
+    if (verbose) {
+      print('Pistars not provided in `pistar`. Estimating them.')
+    }
+    analysis_data <- estimate_pistar_mat(data = analysis_data,
+                                         folds = folds,
+                                         id = id,
+                                         x = x,
+                                         g = g,
+                                         all_a = a,
+                                         all_y = y,
+                                         all_s = s,
+                                         lrnr = binary_lrnr)
+    pistar <- paste0('pistar_', 1:tt)
+  }
   if (all(is.null(gamma1))) {
     if (!all(is.null(a))) {
       if (verbose) {
@@ -59,7 +88,8 @@ tmle_delta <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NULL
       gamma0 <- paste0('gamma0_', 1:tt)
     }
   }
-  analysis_data <- estimate_Q_tmle(data = analysis_data,
+  browser()
+  analysis_data <- estimate_Qstar_tmle(data = analysis_data,
                                    folds = folds,
                                    id = id,
                                    x = x,
@@ -68,11 +98,13 @@ tmle_delta <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NULL
                                    all_y = y,
                                    all_s = s,
                                    all_gamma = gamma1,
+                                   pistar = pistar,
+                                   pi = pi,
                                    e = e,
                                    gval = 1,
                                    lrnr = cont_lrnr)
   Q1 <- paste0('Q1_', 1:tt)
-  analysis_data <- estimate_Q_tmle(data = analysis_data,
+  analysis_data <- estimate_Qstar_tmle(data = analysis_data,
                                    folds = folds,
                                    id = id,
                                    x = x,
@@ -81,6 +113,8 @@ tmle_delta <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NULL
                                    all_y = y,
                                    all_s = s,
                                    all_gamma = gamma0,
+                                   pistar = pistar,
+                                   pi = pi,
                                    e = e,
                                    gval = 0,
                                    lrnr = cont_lrnr)
@@ -104,13 +138,13 @@ tmle_delta <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NULL
                      Q1_1,
                      Q0_1,
                      eif = eif_delta_tml(y = y_m,
-                                     a = a_m,
-                                     g = !!sym(g),
-                                     e = !!sym(e),
-                                     gamma0 = gamma0_m,
-                                     Q0 = Q0_m,
-                                     gamma1 = gamma1_m,
-                                     Q1 = Q1_m))
+                                         a = a_m,
+                                         g = !!sym(g),
+                                         e = !!sym(e),
+                                         gamma0 = gamma0_m,
+                                         Q0 = Q0_m,
+                                         gamma1 = gamma1_m,
+                                         Q1 = Q1_m))
 
   summarise(if_ds,
             tmle_est = mean(Q1_1 - Q0_1),

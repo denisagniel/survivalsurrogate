@@ -35,14 +35,14 @@ eif_delta_s_partj_mu <- function(j, y, a, gamma, mu, pi, pistar, Q, t0) {
   }
 
   apq_gp_j <- a[,j]*pistar[,j]/gamma[,j]/pi[,j]
-  Qtilde <- Q
-  tt <- ncol(y)
-  if (tt >= t0+2) {
-    Qtilde[,(t0+1):(tt-1)] <- mu[,(t0+2):tt]*Q[,(t0+2):tt]
-  }
-  Qtilde[,tt] <- 1
+  # Qtilde <- Q
+  # tt <- ncol(y)
+  # if (tt >= t0+2) {
+  #   Qtilde[,(t0+1):(tt-1)] <- mu[,(t0+2):tt]*Q[,(t0+2):tt]
+  # }
+  # Qtilde[,tt] <- 1
 
-  out <- tibble(!!glue('mu_part{j}') := ayp_gp_jm1*apq_gp_j*(y[,j]*Qtilde[,j] - mu[,j]*Q[,j]))
+  out <- tibble(!!glue('mu_part{j}') := ayp_gp_jm1*apq_gp_j*(y[,j]*Q[,j] - mu[,j]*Q[,j]))
   if (any(is.na(out))) browser()
   out
 }
