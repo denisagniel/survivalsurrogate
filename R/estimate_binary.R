@@ -1,4 +1,8 @@
 estimate_binary <- function(data, folds, id, x, y, include_train, lrnr, task_name) {
+  if (nrow(distinct(data, !!sym(y))) == 1) {
+    return(transmute(data, !!id := !!sym(id), !!task_name := unique(!!sym(y))))
+  }
+
   if (lrnr$predict_type != 'prob') lrnr$predict_type <- 'prob'
   data <- mutate(data, row_id = 1:nrow(data))
 
