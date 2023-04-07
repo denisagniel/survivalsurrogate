@@ -84,10 +84,16 @@ ipw_delta <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NULL,
   gamma1_m <- ds_to_matrix(analysis_data, gamma1)
   gamma0_m <- ds_to_matrix(analysis_data, gamma0)
 
+  if (!all(is.null(a))) {
+    a_m <- ds_to_matrix(analysis_data, a)
+  } else {
+    a_m <- matrix(1, 1, 1)
+  }
+
 
   analysis_data <- mutate(analysis_data,
-                          ipw_if1 = !!sym(g)/!!sym(e)*!!sym(y[tt])/matprod(gamma1_m),
-                          ipw_if0 = (1-!!sym(g))/(1-!!sym(e))*!!sym(y[tt])/matprod(gamma0_m),
+                          ipw_if1 = !!sym(g)/!!sym(e)*!!sym(y[tt])*matprod(a_m)/matprod(gamma1_m),
+                          ipw_if0 = (1-!!sym(g))/(1-!!sym(e))*!!sym(y[tt])*matprod(a_m)/matprod(gamma0_m),
                           ipw_if = ifelse(!!sym(g) == 1, ipw_if1, -ipw_if0)
   )
   if_ds <- select(analysis_data, !!id, ipw_if)
