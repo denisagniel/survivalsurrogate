@@ -85,10 +85,10 @@ tmle_delta_s <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NU
       for (t in 1:tt) {
         analysis_data <- mutate(analysis_data, !!glue('gamma0_{t}') := 1)
       }
-      gamma0 <- paste0('gamma0_', 1:tt)
     }
+    gamma0 <- paste0('gamma0_', 1:tt)
   }
-  browser()
+  # browser()
   analysis_data <- estimate_Qstar_tmle(data = analysis_data,
                                    folds = folds,
                                    id = id,
@@ -128,6 +128,8 @@ tmle_delta_s <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NU
   y_m <- ds_to_matrix(analysis_data, y)
   if (all(is.null(a))) {
     a_m <- matrix(1, nrow(y_m), ncol(y_m))
+  } else {
+    a_m <- ds_to_matrix(analysis_data, a)
   }
   Q0_m <- ds_to_matrix(analysis_data, Q0)
   Q1_m <- ds_to_matrix(analysis_data, Q1)

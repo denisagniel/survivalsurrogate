@@ -5,7 +5,7 @@ estimate_pistar_mat <- function(data, folds, id, x, g, all_a, all_y, all_s, lrnr
     if (t == 1) {
       estimate_pistar_j(data, folds, id, x, g, all_a[t],  all_y[t], NULL, t+1, lrnr)
     } else {
-      estimate_pistar_j(data, folds, id, x, g, all_a[t],  all_y[t], all_s[1:t-1], t+1, lrnr)
+      estimate_pistar_j(data, folds, id, x, g, all_a[t],  all_y[t], all_s[1:(t-1)], t+1, lrnr)
     }
 
   })

@@ -24,10 +24,11 @@ clean_up_ds <- function(data, a = NULL, y, truncate_e = 0, truncate_pi = 0) {
   }
   if (truncate_e > 0) {
     if (truncate_e > 1) stop('Truncation point `truncate_e` must be less than 1.')
-    clean_data <- mutate(clean_data,
-                         e = case_when(e < truncate_e ~ truncate_e,
-                                       e > 1 - truncate_e ~ 1 - truncate_e,
-                                       TRUE ~ e))
+    clean_data <- mutate_at(clean_data,
+                            vars(contains('gamma'), e),
+                         ~case_when(. < truncate_e ~ truncate_e,
+                                       . > 1 - truncate_e ~ 1 - truncate_e,
+                                       TRUE ~ .))
   }
   clean_data
 }

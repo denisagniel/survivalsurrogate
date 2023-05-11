@@ -164,8 +164,8 @@ plugin_delta_s <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = 
       for (t in 1:tt) {
         analysis_data <- mutate(analysis_data, !!glue('gamma1_{t}') := 1)
       }
-      gamma1 <- paste0('gamma1_', 1:tt)
     }
+    gamma1 <- paste0('gamma1_', 1:tt)
   }
   if (all(is.null(gamma0))) {
     if (!all(is.null(a))) {
@@ -186,8 +186,8 @@ plugin_delta_s <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = 
       for (t in 1:tt) {
         analysis_data <- mutate(analysis_data, !!glue('gamma0_{t}') := 1)
       }
-      gamma0 <- paste0('gamma0_', 1:tt)
     }
+    gamma0 <- paste0('gamma0_', 1:tt)
   }
 
   analysis_data <- clean_up_ds(analysis_data, a, y,
@@ -201,7 +201,10 @@ plugin_delta_s <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = 
   y_m <- ds_to_matrix(analysis_data, y)
   if (all(is.null(a))) {
     a_m <- matrix(1, nrow(y_m), ncol(y_m))
+  } else {
+    a_m <- ds_to_matrix(analysis_data, a)
   }
+
   Qstar0_m <- ds_to_matrix(analysis_data, Qstar0)
   Qstar1_m <- ds_to_matrix(analysis_data, Qstar1)
   mu1_m <- ds_to_matrix(analysis_data, mu1)
