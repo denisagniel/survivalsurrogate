@@ -102,7 +102,8 @@ tmle_delta_s <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NU
                                    pi = pi,
                                    e = e,
                                    gval = 1,
-                                   lrnr = cont_lrnr)
+                                   lrnr_c = cont_lrnr,
+                                   lrnr_b = binary_lrnr)
   Q1 <- paste0('Q1_', 1:tt)
   analysis_data <- estimate_Qstar_tmle(data = analysis_data,
                                    folds = folds,
@@ -117,7 +118,8 @@ tmle_delta_s <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NU
                                    pi = pi,
                                    e = e,
                                    gval = 0,
-                                   lrnr = cont_lrnr)
+                                   lrnr_c = cont_lrnr,
+                                   lrnr_b = binary_lrnr)
   Q0 <- paste0('Q0_', 1:tt)
   analysis_data <- clean_up_ds(analysis_data, a, y,
                                truncate_e = truncate_e)
