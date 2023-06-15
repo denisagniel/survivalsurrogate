@@ -1,4 +1,4 @@
-ipw_delta_s <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NULL, cont_lrnr = NULL, e = NULL, pi = NULL, pistar = NULL, gamma1 = NULL, gamma0 = NULL, truncate_pi = 1e-12, truncate_e = 1e-12, verbose = FALSE) {
+ipw_delta_s <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NULL, cont_lrnr = NULL, e = NULL, pi = NULL, pistar = NULL, gamma1 = NULL, gamma0 = NULL, truncate_pi = 1e-12, truncate_e = 1e-12, verbose = FALSE, d_mix = NULL, d_1 = NULL, d_0 = NULL) {
   analysis_data <- data
   tt <- length(y)
   tt_s <- length(s)
@@ -14,9 +14,9 @@ ipw_delta_s <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NUL
                                              lrnr = binary_lrnr)
     e <- 'e'
   }
-  if (all(is.null(pi))) {
+  if (all(is.null(pi)) & (any(is.null(d_mix)) | any(is.null(d_1)) | any(is.null(d_0)) )) {
     if (verbose) {
-      print('Pis not provided in `pi`. Estimating them.')
+      print('Pis not provided in `pi` and surrogate densities not provided. Estimating pi.')
     }
     analysis_data <- estimate_pi_mat(data = analysis_data,
                            folds = folds,
@@ -29,9 +29,9 @@ ipw_delta_s <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NUL
                            lrnr = binary_lrnr)
     pi <- paste0('pi1_', 1:tt)
   }
-  if (all(is.null(pistar))) {
+  if (all(is.null(pistar)) & (any(is.null(d_mix)) | any(is.null(d_1)) | any(is.null(d_0)) )) {
     if (verbose) {
-      print('Pistars not provided in `pistar`. Estimating them.')
+      print('Pistars not provided in `pistar` and surrogate densities not provided. Estimating them.')
     }
     analysis_data <- estimate_pistar_mat(data = analysis_data,
                                    folds = folds,
@@ -104,7 +104,7 @@ ipw_delta_s <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NUL
   #                           !!w1_j := !!sym(pistar_jm1)/!!sym(pi_jm1)/!!sym(gamma1_j),
   #                           !!w0_j := (1-!!sym(pistar_jm1))/(1-!!sym(pi_jm1))/!!sym(gamma0_j))
   # }
-  analysis_data <- clean_up_ds(analysis_data, a, y,
+  analysis_data <- clean_up_ds(analysis_data, a, y, e = e,
                                truncate_pi = truncate_pi,
                                truncate_e = truncate_e)
   # rowwise_data <- rowwise(analysis_data)
@@ -113,27 +113,53 @@ ipw_delta_s <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NUL
   #                        ipw_num_1 = prod(c_across(any_of(c(g, a, y)) | contains('pistar'))),
   #                        ipw_denom_1 = prod(c_across(contains('gamma1') | starts_with('pi_')))
 
-  pistar_m <- ds_to_matrix(analysis_data, pistar)
-  pi1_m <- ds_to_matrix(analysis_data, pi)
-  pi0_m <- 1 - pi1_m
-  gamma1_m <- ds_to_matrix(analysis_data, gamma1)
-  gamma0_m <- ds_to_matrix(analysis_data, gamma0)
-
   if (!all(is.null(a))) {
     a_m <- ds_to_matrix(analysis_data, a)
   } else {
     a_m <- matrix(1, 1, 1)
   }
+  gamma1_m <- ds_to_matrix(analysis_data, gamma1)
+  gamma0_m <- ds_to_matrix(analysis_data, gamma0)
 
-  analysis_data <- mutate(analysis_data,
-         ipw_if1 = !!sym(g)/!!sym(e)*!!sym(y[tt])*matprod(a_m)*matprod(pistar_m) / matprod(pi1_m) / matprod(gamma1_m),
-         ipw_if0 = (1-!!sym(g))/(1-!!sym(e))*!!sym(y[tt])*matprod(a_m)*matprod(1-pistar_m) / matprod(pi0_m) / matprod(gamma0_m),
-         ipw_if = ifelse(!!sym(g) == 1, ipw_if1, -ipw_if0)
-  )
-  if_ds <- select(analysis_data, !!id, ipw_if)
-  summarise(analysis_data,
-            ipw_delta_s = mean(ipw_if),
-            ipw_se = sd(ipw_if)/sqrt(n()),
-            if_data = list(if_ds))
+  if (!is.null(pistar) & !is.null(pi)) {
+    pistar1_m <- ds_to_matrix(analysis_data, pistar)
+    pistar0_m <- 1 - pistar1_m
+    pi1_m <- ds_to_matrix(analysis_data, pi)
+    pi0_m <- 1 - pi1_m
+    pistar1_m[,1] <- pistar0_m[,1] <- pi1_m[,1] <- pi0_m[,1] <- 1
+
+
+    analysis_data <- mutate(analysis_data,
+                            ipw_if1 = !!sym(g)/!!sym(e)*!!sym(y[tt])*matprod(a_m)*matprod(pistar1_m) / matprod(pi1_m) / matprod(gamma1_m),
+                            ipw_if0 = (1-!!sym(g))/(1-!!sym(e))*!!sym(y[tt])*matprod(a_m)*matprod(pistar0_m) / matprod(pi0_m) / matprod(gamma0_m),
+                            ipw_if = ifelse(!!sym(g) == 1, ipw_if1, -ipw_if0)
+    )
+    if_ds <- select(analysis_data, !!id, ipw_if)
+    summarise(analysis_data,
+              ipw_delta_s = mean(ipw_if),
+              ipw_se = sd(ipw_if)/sqrt(n()),
+              if_data = list(if_ds))
+  } else {
+    if (any(is.null(d_mix)) | any(is.null(d_1)) | any(is.null(d_0)) ) {
+      stop("Surrogate densities expected but not provided.")
+    }
+    d_mix_m <- ds_to_matrix(analysis_data, d_mix)
+    d1_m <- ds_to_matrix(analysis_data, d_1)
+    d0_m <- ds_to_matrix(analysis_data, d_0)
+    analysis_data <- mutate(analysis_data,
+                            ipw_if1 = !!sym(g)/!!sym(e)*!!sym(y[tt])*matprod(a_m)*matprod(d_mix_m)/matprod(d1_m) / matprod(gamma1_m),
+                            ipw_if0 = (1-!!sym(g))/(1-!!sym(e))*!!sym(y[tt])*matprod(a_m)*matprod(d_mix_m)/matprod(d0_m) / matprod(gamma0_m),
+                            ipw_if = ifelse(!!sym(g) == 1, ipw_if1, -ipw_if0)
+    )
+    if_ds <- select(analysis_data, !!id, ipw_if)
+    summarise(analysis_data,
+              ipw_delta_s = mean(ipw_if),
+              ipw_se = sd(ipw_if)/sqrt(n()),
+              if_data = list(if_ds))
+  }
+
+
+
+
 
 }
