@@ -74,7 +74,7 @@ ipw_delta <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NULL,
   #                           !!w1_j := !!sym(pistar_jm1)/!!sym(pi_jm1)/!!sym(gamma1_j),
   #                           !!w0_j := (1-!!sym(pistar_jm1))/(1-!!sym(pi_jm1))/!!sym(gamma0_j))
   # }
-  analysis_data <- clean_up_ds(analysis_data, a, y,
+  analysis_data <- clean_up_ds(analysis_data, a, y, e = e,
                                truncate_e = truncate_e)
   # rowwise_data <- rowwise(analysis_data)
   #
