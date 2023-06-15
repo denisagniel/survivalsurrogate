@@ -105,6 +105,7 @@ tmle_delta_s <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NU
                                    lrnr_c = cont_lrnr,
                                    lrnr_b = binary_lrnr)
   Q1 <- paste0('Q1_', 1:tt)
+  Qstar1 <- paste0('Qstar1_', 1:tt)
   analysis_data <- estimate_Qstar_tmle(data = analysis_data,
                                    folds = folds,
                                    id = id,
@@ -121,6 +122,7 @@ tmle_delta_s <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NU
                                    lrnr_c = cont_lrnr,
                                    lrnr_b = binary_lrnr)
   Q0 <- paste0('Q0_', 1:tt)
+  Qstar0 <- paste0('Qstar0_', 1:tt)
   analysis_data <- clean_up_ds(analysis_data, a, y,
                                truncate_e = truncate_e)
 
@@ -135,20 +137,30 @@ tmle_delta_s <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NU
   }
   Q0_m <- ds_to_matrix(analysis_data, Q0)
   Q1_m <- ds_to_matrix(analysis_data, Q1)
+  Qstar0_m <- ds_to_matrix(analysis_data, Qstar0)
+  Qstar1_m <- ds_to_matrix(analysis_data, Qstar1)
 
+
+  pi_m <- ds_to_matrix(analysis_data, pi)
+  pistar_m <- ds_to_matrix(analysis_data, pistar)
 
   if_ds <- transmute(analysis_data,
                      !!id := id,
                      Q1_1,
                      Q0_1,
-                     eif = eif_delta_tml(y = y_m,
+                     eif = eif_delta_s_tml(y = y_m,
                                          a = a_m,
                                          g = !!sym(g),
                                          e = !!sym(e),
                                          gamma0 = gamma0_m,
                                          Q0 = Q0_m,
+                                         Qstar0 = Qstar0_m,
                                          gamma1 = gamma1_m,
-                                         Q1 = Q1_m))
+                                         Q1 = Q1_m,
+                                         Qstar1 = Qstar1_m,
+                                         pi = pi_m,
+                                         pistar = pistar_m
+                                         ))
 
   summarise(if_ds,
             tmle_est = mean(Q1_1 - Q0_1),
