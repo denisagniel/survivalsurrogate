@@ -39,7 +39,7 @@ estimate_Qj_tmle <- function(data, folds, id, x, g, a_jm1, a_j, y_jm1, y_j, sbar
   for(gam in gammabar_j) {
     # print(gam)
     updated_data <- mutate(updated_data,
-                           gamma_part = gamma_part/!!sym(gam))
+                           gamma_part = gamma_part/pmax(pmin(!!sym(gam), 1-epsilon), epsilon))
   }
   updated_data <- mutate(updated_data, wt_j = static_part*gamma_part)
 
