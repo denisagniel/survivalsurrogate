@@ -63,8 +63,8 @@ tmle_delta_s <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NU
       for (t in 1:tt) {
         analysis_data <- mutate(analysis_data, !!glue('gamma1_{t}') := 1)
       }
-      gamma1 <- paste0('gamma1_', 1:tt)
     }
+    gamma1 <- paste0('gamma1_', 1:tt)
   }
   if (all(is.null(gamma0))) {
     if (!all(is.null(a))) {

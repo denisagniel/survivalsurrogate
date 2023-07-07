@@ -91,6 +91,7 @@ estimate_Qstar_sj_tmle <- function(data, folds, id, x, g, a_jm1, a_j, y_jm1, y_j
   Q_nm <- paste0('Qstar', gval, '_', j)
   if (any(is.na(at_risk_data$Q_s))) browser()
   if (all(abs(at_risk_data$Q_s - 1) < 1e-3 | abs(at_risk_data$Q_s) < 1e-3)) {
+    at_risk_data <- mutate(at_risk_data, Q_s = as.factor(Q_s))
     Q_j <- estimate_binary(at_risk_data, folds, id, c(x, sbar_jm1), 'Q_s', 'include_in_training', lrnr_b, Q_nm)
   } else {
     Q_j <- estimate_cont(at_risk_data, folds, id, c(x, sbar_jm1), 'Q_s', 'include_in_training', lrnr_c, Q_nm)
