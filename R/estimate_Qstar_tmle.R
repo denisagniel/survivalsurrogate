@@ -21,7 +21,10 @@ estimate_Qstar_yj_tmle <- function(data, folds, id, x, g, a_jm1, a_j, y_jm1, y_j
   at_risk_data <- mutate(at_risk_data, Q_y = ifelse(!include_in_training, 0, Q_y))
   Q_nm <- paste0('Q', gval, '_', j)
   if (any(is.na(at_risk_data$Q_y))) browser()
-  if (all(abs(at_risk_data$Q_y - 1) < 1e-3 | abs(at_risk_data$Q_y) < 1e-3)) {
+  if (all(abs(at_risk_data$Q_y - 1) < epsilon | abs(at_risk_data$Q_y) < epsilon)) {
+    at_risk_data <- at_risk_data %>%
+      mutate(Q_y = ifelse(abs(Q_y - 1) < epsilon, 1, Q_y),
+             Q_y = ifelse(abs(Q_y) < epsilon, 0, Q_y))
     Q_j <- estimate_binary(at_risk_data, folds, id, c(x, sbar_jm1), 'Q_y', 'include_in_training', lrnr_b, Q_nm)
   } else {
     Q_j <- estimate_cont(at_risk_data, folds, id, c(x, sbar_jm1), 'Q_y', 'include_in_training', lrnr_c, Q_nm)
@@ -40,7 +43,7 @@ estimate_Qstar_yj_tmle <- function(data, folds, id, x, g, a_jm1, a_j, y_jm1, y_j
   for(gam in gammabar_j) {
     # print(gam)
     updated_data <- mutate(updated_data,
-           gamma_part = gamma_part/!!sym(gam))
+           gamma_part = gamma_part/pmax(pmin(!!sym(gam), 1-epsilon), epsilon))
   }
   for(pist in pistar_jm1) {
     # print(pist)
@@ -60,7 +63,10 @@ estimate_Qstar_yj_tmle <- function(data, folds, id, x, g, a_jm1, a_j, y_jm1, y_j
   tmle_fm <- glue::glue('Q_y ~ offset(qlogis({Q_nm}))')
   tmle_fit <- glm(tmle_fm, weights = wt_j, data = updated_data %>%
                     filter(include_in_training), family = binomial)
-  updated_data <- mutate(updated_data, !!Q_nm := plogis(qlogis(!!sym(Q_nm)) + coef(tmle_fit)))
+  updated_data <- mutate(updated_data, !!Q_nm := plogis(qlogis(!!sym(Q_nm)) + coef(tmle_fit)),
+                         !!Q_nm := case_when(abs(!!sym(Q_nm)) < epsilon ~ 0,
+                                             abs(!!sym(Q_nm) - 1) < epsilon ~ 1,
+                                             TRUE ~ !!sym(Q_nm)))
 
   out_Q <- select(updated_data, !!id, !!Q_nm)
   out_Q <- left_join(data, out_Q, by = id)
