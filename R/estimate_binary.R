@@ -10,7 +10,8 @@ estimate_binary <- function(data, folds, id, x, y, include_train, lrnr, task_nam
   if (!inherits(pull(xy_dat, !!y), 'factor')) {
     xy_dat <- mutate_at(xy_dat, vars(y), as.factor)
   }
-  this_task <- mlr3::as_task_classif(xy_dat, target = y, id = task_name)
+
+  this_task <- mlr3::as_task_classif(xy_dat, target = y, id = task_name, positive = '1')
 
   all_folds <- pull(data, folds)
   unique_folds <- unique(all_folds)
