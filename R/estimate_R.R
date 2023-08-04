@@ -33,7 +33,7 @@ estimate_R <- function(delta_if, delta_s_if, delta = NULL, delta_s = NULL, se_ty
       summarise(estimate = unique(case_when(estimand == 'Delta' ~ delta,
                                      estimand == 'Delta_S' ~ delta_s,
                                      estimand == 'R' ~ 1 - delta_s/delta)),
-                se = sd(boot_estimate),
+                se = median(abs(boot_estimate - median(boot_estimate))),
                 ci_l = quantile(boot_estimate, alpha/2),
                 ci_h = quantile(boot_estimate, 1 - alpha/2))
 
