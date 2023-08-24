@@ -20,11 +20,11 @@ eif_delta_tml_part_yj <- function(j, y, a, gamma, Q, Qstar, pi, pistar, tt) {
       ay_gamma_pi <- a*y/gamma*pistar/pi
       H_yj <- apply(ay_gamma_pi[,1:(j-1),drop=FALSE], 1, prod)
   }
-
+  apq_gp_j <- a[,j]*pistar[,j]/gamma[,j]/pi[,j]
   if (j == tt) {
-    out <- tibble(!!glue('part{j}') := H_yj*a[,j]/gamma[,j]*(y[,j] - Q[,j]))
+    out <- tibble(!!glue('part{j}') := H_yj*apq_gp_j*(y[,j] - Q[,j]))
   } else {
-    out <- tibble(!!glue('part{j}') := H_yj*a[,j]/gamma[,j]*(y[,j]*Qstar[,j] - Q[,j]))
+    out <- tibble(!!glue('part{j}') := H_yj*apq_gp_j*(y[,j]*Qstar[,j] - Q[,j]))
   }
   if (any(is.na(out))) browser()
   out
@@ -43,7 +43,7 @@ eif_delta_tml_part_sj <- function(j, y, a, gamma, Q, Qstar, pi, pistar, tt) {
   if (j == tt) {
     out <- tibble(!!glue('part{j}') := 0)
   } else {
-    out <- tibble(!!glue('part{j}') := H_sj*(Q[,j+1] - Qstar[,j]))
+    out <- tibble(!!glue('part{j}') := H_sj*pistar[,j]*(Q[,j+1] - Qstar[,j]))
   }
   if (any(is.na(out))) browser()
   out
