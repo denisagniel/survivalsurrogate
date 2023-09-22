@@ -124,6 +124,7 @@ tmle_delta_s <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NU
   Q0 <- paste0('Q0_', 1:tt)
   Qstar0 <- paste0('Qstar0_', 1:tt)
   analysis_data <- clean_up_ds(analysis_data, a, y,
+                               e = e, pistar = pistar, pi1 = pi,
                                truncate_e = truncate_e)
 
 
