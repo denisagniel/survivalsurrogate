@@ -9,9 +9,9 @@ estimate_Qstar_yj_tmle <- function(data, folds, id, x, g, a_jm1, a_j, y_jm1, y_j
   }
 
   if (!is.null(a_j)) {
-    at_risk_data <- mutate(at_risk_data, include_in_training = !!sym(g) == gval & !!sym(a_j) == 1)
+    at_risk_data <- mutate(at_risk_data, include_in_training = !!sym(g) == gval & !!sym(a_j) == 1 & !is.na(!!sym(Q_jp1)))
   } else {
-    at_risk_data <- mutate(at_risk_data, include_in_training = !!sym(g) == gval,
+    at_risk_data <- mutate(at_risk_data, include_in_training = !!sym(g) == gval & !is.na(!!sym(Q_jp1)),
                            a_j = 1)
     a_j <- 'a_j'
   }
@@ -84,7 +84,7 @@ estimate_Qstar_sj_tmle <- function(data, folds, id, x, g, a_jm1, a_j, y_jm1, y_j
   }
 
   if (!is.null(a_j)) {
-    at_risk_data <- mutate(at_risk_data, include_in_training = !!sym(a_j) == 1)
+    at_risk_data <- mutate(at_risk_data, include_in_training = !!sym(a_j) == 1 & !is.na(!!sym(Q_jp1)))
   } else {
     at_risk_data <- mutate(at_risk_data, include_in_training = !is.na(!!sym(Q_jp1)),
                            a_j = 1)
