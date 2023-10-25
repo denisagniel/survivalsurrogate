@@ -32,18 +32,17 @@ eif_delta_tml_part_yj <- function(j, y, a, gamma, Q, Qstar, pi, pistar, tt) {
 
 
 eif_delta_tml_part_sj <- function(j, y, a, gamma, Q, Qstar, pi, pistar, tt) {
-  ay_gamma_pistar <- a*y/gamma*pistar
-  ay_gamma_pistar_j <- apply(ay_gamma_pistar[,1:j,drop=FALSE], 1, prod)
-  if (j == 1) {
-    H_sj <- ay_gamma_pistar_j
-  } else {
-    H_sj <- ay_gamma_pistar_j/apply(pi[,1:(j-1),drop=FALSE], 1, prod)
-  }
+  pi <- ifelse(pistar == 0 & pi == 0, 1, pi)
+  pi <- ifelse(pistar == 1 & pi == 0, 1, pi)
+  pistar <- ifelse(pistar == 0 & pi == 0, 1, pistar)
+  pistar <- ifelse(pistar == 1 & pi == 0, 1, pistar)
+  aypistar_gammapi <- a*y*pistar/gamma/pi
+  ayp_gp <- apply(aypistar_gammapi[,1:j,drop=FALSE], 1, prod)
 
   if (j == tt) {
     out <- tibble(!!glue('part{j}') := 0)
   } else {
-    out <- tibble(!!glue('part{j}') := H_sj*pistar[,j]*(Q[,j+1] - Qstar[,j]))
+    out <- tibble(!!glue('part{j}') := ayp_gp*pistar[,j+1]*(Q[,j+1] - Qstar[,j]))
   }
   if (any(is.na(out))) browser()
   out

@@ -1,4 +1,4 @@
-ipw_delta <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NULL, cont_lrnr = NULL, e = NULL, pi = NULL, pistar = NULL, gamma1 = NULL, gamma0 = NULL,truncate_e = 1e-12, verbose = FALSE) {
+ipw_delta <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NULL, cont_lrnr = NULL, e = NULL, gamma1 = NULL, gamma0 = NULL,truncate_e = 1e-12, verbose = FALSE) {
   analysis_data <- data
   tt <- length(y)
   if (all(is.null(e))) {

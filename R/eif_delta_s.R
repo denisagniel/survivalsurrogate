@@ -55,7 +55,7 @@ eif_delta_s_partj_q <- function(j, y, a, gamma, mu, pi, pistar, Q) {
   aypistar_gammapi <- a*y*pistar/gamma/pi
   ayp_gp <- apply(aypistar_gammapi[,1:j,drop=FALSE], 1, prod)
 
-  out <- tibble(!!glue('Q_part{j}') := ayp_gp*pistar[,j]*(mu[,j+1]*Q[,j+1] - Q[,j]))
+  out <- tibble(!!glue('Q_part{j}') := ayp_gp*pistar[,j+1]*(mu[,j+1]*Q[,j+1] - Q[,j]))
   if (any(is.na(out))) browser()
   out
 }
