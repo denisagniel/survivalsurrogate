@@ -1,4 +1,4 @@
-plugin_delta_s <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NULL, cont_lrnr = NULL, t0 = length(s), e = NULL, gamma1 = NULL, gamma0 = NULL, mu1 = NULL, mu0 = NULL, pi = NULL, pistar = NULL, Q1 = NULL, Q0 = NULL, Qstar1 = NULL, Qstar0 = NULL, truncate_e = 1e-12, truncate_pi = 1e-12, verbose = FALSE) {
+plugin_delta_s <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NULL, cont_lrnr = NULL, t0 = length(s), e = NULL, gamma1 = NULL, gamma0 = NULL, mu1 = NULL, mu0 = NULL, pi = NULL, pistar = NULL, Q1 = NULL, Q0 = NULL, Qstar1 = NULL, Qstar0 = NULL, truncate_e = 1e-12, truncate_pi = 1e-12, se_type = 'asymptotic', n_boot = NULL, alpha = 0.05, verbose = FALSE) {
   tt <- length(y)
   if (all(is.null(mu1))) {
     if (verbose) {
@@ -226,9 +226,33 @@ plugin_delta_s <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = 
                                           mu1 = mu1_m,
                                           Q1 = Qstar1_m,
                                           t0 = t0))
-  summarise(if_ds,
-            plugin_est = mean(eif),
-            plugin_se = sd(eif)/sqrt(n()),
-            if_data = list(if_ds))
+  n <- nrow(if_ds)
+  if (se_type == 'asymptotic') {
+    summarise(if_ds,
+              plugin_est = mean(eif),
+              plugin_se = sd(eif)/sqrt(n()),
+              ci_l = plugin_est - qnorm(1-alpha/2)*plugin_se,
+              ci_h = plugin_est + qnorm(1-alpha/2)*plugin_se,
+              if_data = list(if_ds))
+  } else if (se_type == 'bootstrap') {
+    if (is.null(n_boot)) stop('If se_type = "bootstrap", must provide number of bootstraps in n_boot.')
+    # browser()
+    gmat <- rBeta2009::rdirichlet(n_boot, rep(1, n))*n
+    boot_res_l <- list()
+    for (b in 1:n_boot) {
+      wt_b <- gmat[b,]
+      boot_res_l[[b]] <- if_ds %>%
+        summarise(boot_estimate = sum(eif*wt_b)/sum(wt_b))
+    }
+    # browser()
+    boot_res <- bind_rows(boot_res_l) %>%
+      summarise(plugin_est = mean(eif),
+                se = sd(boot_estimate),
+                ci_l = quantile(boot_estimate, alpha/2),
+                ci_h = quantile(boot_estimate, 1 - alpha/2),
+                if_data = list(if_ds))
+    boot_res
+  }
+
 
 }
