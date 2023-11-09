@@ -1,10 +1,10 @@
-eif_delta_s_tml <- function(y, a, g, e, gamma0, Q0, Qstar0, gamma1, Q1, Qstar1, pi, pistar) {
+eif_delta_s_tml <- function(y, a, g, e, gamma0, Q0, Qstar0, gamma1, Q1, Qstar1, pi, pistar, t0) {
   tt <- ncol(y)
   pi1 <- ifelse(pi == 0, 1, pi)
   pi0 <- ifelse(pi == 1, 1, 1-pi)
-  part_sj1 <- map(1:tt, ~eif_delta_tml_part_sj(., y, a, gamma1, Q1, Qstar1, pi1, pistar, tt)) %>%
+  part_sj1 <- map(1:t0, ~eif_delta_tml_part_sj(., y, a, gamma1, Q1, Qstar1, pi1, pistar, tt)) %>%
     bind_cols
-  part_sj0 <- map(1:tt, ~eif_delta_tml_part_sj(., y, a, gamma0, Q0, Qstar0, pi0, 1-pistar, tt)) %>%
+  part_sj0 <- map(1:t0, ~eif_delta_tml_part_sj(., y, a, gamma0, Q0, Qstar0, pi0, 1-pistar, tt)) %>%
     bind_cols
   part_yj1 <- map(1:tt, ~eif_delta_tml_part_yj(., y, a, gamma1, Q1, Qstar1, pi1, pistar, tt)) %>%
     bind_cols
@@ -22,6 +22,7 @@ eif_delta_tml_part_yj <- function(j, y, a, gamma, Q, Qstar, pi, pistar, tt) {
   }
   apq_gp_j <- a[,j]*pistar[,j]/gamma[,j]/pi[,j]
   if (j == tt) {
+
     out <- tibble(!!glue('part{j}') := H_yj*apq_gp_j*(y[,j] - Q[,j]))
   } else {
     out <- tibble(!!glue('part{j}') := H_yj*apq_gp_j*(y[,j]*Qstar[,j] - Q[,j]))

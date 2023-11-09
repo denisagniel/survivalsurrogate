@@ -1,4 +1,4 @@
-tmle_delta_s <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NULL, cont_lrnr = NULL, e = NULL, gamma1 = NULL, gamma0 = NULL, pi = NULL, pistar = NULL, truncate_e = 1e-12, verbose = FALSE) {
+tmle_delta_s <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NULL, cont_lrnr = NULL, t0 = length(s), e = NULL, gamma1 = NULL, gamma0 = NULL, pi = NULL, pistar = NULL, truncate_e = 1e-12, verbose = FALSE, retain_data = FALSE) {
   tt <- length(y)
   analysis_data <- data
   if (all(is.null(e))) {
@@ -146,7 +146,7 @@ tmle_delta_s <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NU
   pistar_m <- ds_to_matrix(analysis_data, pistar)
 
   if_ds <- transmute(analysis_data,
-                     !!id := id,
+                     !!id := !!sym(id),
                      Q1_1,
                      Q0_1,
                      eif = eif_delta_s_tml(y = y_m,
@@ -160,11 +160,20 @@ tmle_delta_s <- function(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NU
                                          Q1 = Q1_m,
                                          Qstar1 = Qstar1_m,
                                          pi = pi_m,
-                                         pistar = pistar_m
+                                         pistar = pistar_m,
+                                         t0 = t0
                                          ))
 
-  summarise(if_ds,
-            tmle_est = mean(Q1_1 - Q0_1),
-            tmle_se = sd(eif)/sqrt(n()),
-            if_data = list(if_ds))
+  if (!retain_data) {
+    summarise(if_ds,
+              tmle_est = mean(Q1_1 - Q0_1),
+              tmle_se = sd(eif)/sqrt(n()),
+              if_data = list(if_ds))
+  } else {
+    summarise(if_ds,
+              tmle_est = mean(Q1_1 - Q0_1),
+              tmle_se = sd(eif)/sqrt(n()),
+              if_data = list(analysis_data %>% inner_join(if_ds)))
+  }
+
 }
