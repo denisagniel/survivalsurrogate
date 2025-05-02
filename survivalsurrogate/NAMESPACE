@@ -1,0 +1,11 @@
+export("estimate_R", "plugin_delta", "plugin_delta_s",
+       "tmle_delta", "tmle_delta_s")
+importFrom(dplyr, all_of, any_of, bind_rows, case_when, contains, distinct, filter, group_by, inner_join, left_join, mutate, mutate_at, n, pull, rename, rowwise, select, summarise, sym, tibble, transmute, vars)
+importFrom(magrittr, "%>%")
+importFrom(glue, glue)
+importFrom(mlr3, as_task_classif, as_task_regr)
+importFrom(purrr, map, map_df)
+importFrom(SparseM, as.matrix)
+importFrom(rBeta2009, rdirichlet)
+importFrom(stats, coef, glm, median, plogis, predict, qlogis, qnorm, quantile, sd, binomial)
+importFrom(data.table, ":=")
