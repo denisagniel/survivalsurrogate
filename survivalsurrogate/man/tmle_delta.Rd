@@ -1,72 +1,100 @@
 \name{tmle_delta}
 \alias{tmle_delta}
 \title{
-Targeted Maximum Likelihood Estimation with Censoring Adjustment
+Treatment effect estimation using TMLE
 }
 \description{
-Estimates a causal effect using Targeted Maximum Likelihood Estimation (TMLE) while accounting for time-dependent outcomes and potential censoring under treatment and control. This implementation supports flexible machine learning-based nuisance parameter estimation.
+Estimates the treatment effect using targeted minimum loss-based estimation (TMLE). 
 }
 \usage{
-tmle_delta(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NULL, cont_lrnr = NULL, e = NULL, gamma1 = NULL, gamma0 = NULL, truncate_e = 1e-12, verbose = FALSE)
+tmle_delta(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NULL, cont_lrnr 
+= NULL, e = NULL, gamma1 = NULL, gamma0 = NULL, truncate_e = 1e-12, verbose 
+= FALSE)
 }
 \arguments{
-  \item{data}{
-A \code{data.frame} containing all relevant variables for estimation, including covariates, treatment, censoring, and outcome variables.
+ \item{data}{
+A dataframe containing all necessary variables for estimation. The functions in this package require the dataframe to be in a specific form. Therefore, you will need to reformat your dataset as follows. At a minimum, you will need variables in your dataframe that indicate (1) the folds for crossfitting; (2) a unique observation identifier; (3) baseline covariates, if there are none you must have a variable with all values equal to 1 to provide to the argument x below; (4) a variable indicating treatment group which should be 1 for treatment and 0 for control; (5) a set of variables that contain the surrogate marker value at each time point up to and including the landmark time, denoted t0; (6) a set of variables that indicate observation status at each time point where the surrogate marker is measured, in addition to the final time which is denoted as t; (7)  a set of variables that indicate primary outcome status at each time point where the surrogate marker is measured, in addition to the final time which is denoted as t. See the exampledata for an example where t0=4 and t=5.
 }
   \item{folds}{
-An object specifying the cross-validation folds to use for nuisance parameter estimation. Typically a list of fold assignments.
+A vector defining crossfitting folds for nuisance estimation.
 }
   \item{id}{
-A character string giving the name of the column identifying individual units in the data.
+A string giving the name of the column with unique unit IDs (e.g., individual ID).
 }
   \item{x}{
-A character vector specifying the baseline covariates to adjust for.
+A character vector of covariate names to adjust for in nuisance estimation. At a minimum this must have one covariate equal to 1 for all individuals.
 }
   \item{g}{
-A character string giving the name of the treatment variable (binary indicator for treatment vs. control).
+A string indicating the column name of the treatment indicator with 1 for treatment and 0 for control.
 }
-  \item{a}{
-(Optional) A character vector of names for the time-varying treatment indicators. If \code{NULL}, assumes no censoring.
+ \item{a}{
+(Optional) A character vector of the column names indicating observation status at each time point. Specifically, A_t = 1 if the individual is still under observation (i.e., uncensored) at time t, meaning their outcome status could in principle be measured at that time. A value of 0 means the individual was censored prior to t. If not provided, assumed to be 1 for all time points.
 }
-  \item{y}{
-A character vector of names for the outcome variables at each time point.
+\item{y}{
+A character vector of the column names indicating primary outcome status at each time point. Specifically, Y_t = 1 if the primary event (e.g., failure, relapse, death) has not yet occurred by time t, and the individual is still at risk. A value of 0 means the primary event occurred on or before time t.
 }
+
   \item{s}{
-A character vector of names for the indicators of being at risk (uncensored) at each time point.
+A character vector of the column names indicating the surrogate marker values measured at each time point, where the value is NA if the individual is no longer observable at that time point. 
 }
-  \item{binary_lrnr}{
-A binary learner (e.g., SuperLearner object or algorithm name) used to estimate the propensity score and censoring mechanisms.
+   \item{binary_lrnr}{
+Learner object or specification used for estimating binary nuisance components (e.g., propensity scores, censoring).
 }
   \item{cont_lrnr}{
-A continuous outcome learner used to estimate the conditional expectations of the outcomes.
+Learner object used for estimating continuous-valued outcome regressions.
 }
   \item{e}{
-(Optional) A character string giving the name of the column with known or externally estimated treatment propensity scores. If \code{NULL}, these are estimated from the data.
+(Optional) Column name or vector of propensity score estimates. If not provided, these will be estimated.
 }
   \item{gamma1}{
-(Optional) A character vector of names of columns giving the censoring probabilities under treatment. If \code{NULL}, these are estimated.
+(Optional) Vector of column names for censoring probabilities under treatment. If not provided, these will be estimated.
 }
   \item{gamma0}{
-(Optional) A character vector of names of columns giving the censoring probabilities under control. If \code{NULL}, these are estimated.
+(Optional) Vector of column names for censoring probabilities under control. If not provided, these will be estimated.
 }
   \item{truncate_e}{
-A numeric value indicating the truncation level for the propensity score, used to avoid division by near-zero values.
+Numeric truncation level for propensity scores to avoid division by near-zero values. Default is \code{1e-12}.
 }
   \item{verbose}{
-Logical; if \code{TRUE}, prints progress and estimation details.
+Logical; if TRUE, print progress messages.
 }
 }
-\details{
-This function estimates the average treatment effect on a time-indexed outcome using TMLE, incorporating estimates of the treatment assignment mechanism, censoring processes, and outcome regressions. It supports estimation under censoring by estimating or supplying the censoring probabilities under both treatment and control. The user can optionally supply known values for the propensity score and censoring probabilities.
-}
+
 \value{
-A data frame with the following components:
-  \item{tmle_est}{The estimated causal effect (average difference in potential outcomes).}
-  \item{tmle_se}{The estimated standard error of the TMLE estimator, based on the influence function.}
+A dataframe with the following components:
+  \item{tmle_est}{TMLE estimate of the treatment effect.}
+  \item{tmle_se}{Estimated standard error of the TMLE estimator, based on the influence function.}
   \item{if_data}{A nested data frame containing the influence function contributions for each observation.}
 }
 \references{
 Agniel D and Parast L (2025+). "Robust Evaluation of Longitudinal Surrogate Markers with Censored Data." Journal of the Royal Statistical Society: Series B, In press.
-
 }
+\examples{
+data(exampledata)
+names(exampledata)
+library(glue)
+library(gbm)
+library(mlr3extralearners)
+library(dplyr)
 
+tt <- 5
+t0 <- 4
+yvars <- paste0('Y_', 0:tt)
+lrn <- 'gbm'
+lrnc <- glue('regr.{lrn}')
+lrnb <- glue('classif.{lrn}')
+
+tml_deltahat <- tmle_delta(data = exampledata,
+                             folds = 'ff',
+                             id = 'ID',
+                             x = 'X_0',
+                             g = 'G_0',
+                             a = paste0('A_', 0:tt),
+                             y = yvars,
+                             s = paste0('S_', 0:t0),
+                             binary_lrnr = lrn(lrnb, predict_type = 'prob'),
+                             cont_lrnr = lrn(lrnc),
+                             truncate_e = 0.005,
+                             verbose = FALSE)
+tml_deltahat 
+}

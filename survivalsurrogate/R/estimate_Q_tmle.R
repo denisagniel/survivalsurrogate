@@ -37,15 +37,15 @@ estimate_Qj_tmle <- function(data, folds, id, x, g, a_jm1, a_j, y_jm1, y_j, sbar
                          static_part = gval*!!sym(g)/!!sym(e)*!!sym(a_j) + (1-gval)*(1-!!sym(g))/(1-!!sym(e))*!!sym(a_j),
                          gamma_part = 1)
   for(gam in gammabar_j) {
-    # print(gam)
+    # cat(gam)
     updated_data <- mutate(updated_data,
                            gamma_part = gamma_part/pmax(pmin(!!sym(gam), 1-epsilon), epsilon))
   }
   updated_data <- mutate(updated_data, wt_j = static_part*gamma_part)
 
   tmle_fm <- glue::glue('Q_y ~ offset(qlogis({Q_nm}))')
-  tmle_fit <- glm(tmle_fm, weights = wt_j, data = updated_data %>%
-                    filter(include_in_training), family = binomial)
+  tmle_fit <- suppressWarnings({glm(tmle_fm, weights = wt_j, data = updated_data %>%
+                    filter(include_in_training), family = binomial)})
   updated_data <- mutate(updated_data, !!Q_nm := plogis(qlogis(!!sym(Q_nm)) + coef(tmle_fit)),
                          !!Q_nm := case_when(abs(!!sym(Q_nm)) < epsilon ~ 0,
                                              abs(!!sym(Q_nm) - 1) < epsilon ~ 1,

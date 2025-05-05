@@ -1,56 +1,130 @@
 \name{plugin_delta_s}
 \alias{plugin_delta_s}
 \title{
-Plugin Estimator of the Surrogate Causal Effect at a Fixed Time Point
+Residual treatment effect estimation using the plug-in estimator 
+
 }
 \description{
-Computes a plugin estimator of the average causal effect of treatment on a primary outcome, conditionally mediated through a surrogate marker, at a fixed time point. This estimator uses flexible machine learning models for nuisance parameters and supports both asymptotic and bootstrap standard errors.
+Estimates the residual treatment effect the plug-in estimator for evaluating a longitudinal surrogate marker. 
 }
 \usage{
-plugin_delta_s(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NULL, cont_lrnr = NULL, t0 = length(s), e = NULL, gamma1 = NULL, gamma0 = NULL, mu1 = NULL, mu0 = NULL, pi = NULL, pistar = NULL, Q1 = NULL, Q0 = NULL, Qstar1 = NULL, Qstar0 = NULL, truncate_e = 1e-12, truncate_pi = 1e-12, se_type = "asymptotic", n_boot = NULL, alpha = 0.05, verbose = FALSE, retain_data = FALSE)
+plugin_delta_s(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NULL, cont_lrnr 
+= NULL, t0 = length(s), e = NULL, gamma1 = NULL, gamma0 = NULL, mu1 = NULL, mu0 = NULL, 
+pi = NULL, pistar = NULL, Q1 = NULL, Q0 = NULL, truncate_e = 1e-12, truncate_pi = 1e-12, 
+se_type = "asymptotic", n_boot = NULL, alpha = 0.05, verbose = FALSE, retain_data 
+= FALSE)
 }
 \arguments{
-  \item{data}{A \code{data.table} or \code{data.frame} with one row per observation.}
-  \item{folds}{A vector of fold assignments used for cross-fitting.}
-  \item{id}{The name of the column identifying individual observations.}
-  \item{x}{A character vector of baseline covariate column names.}
-  \item{g}{The name of the treatment assignment column (0 or 1).}
-  \item{a}{Optional; vector of censoring indicator column names at each time point. If \code{NULL}, assumes no censoring.}
-  \item{y}{Vector of primary outcome indicator column names at each time point.}
-  \item{s}{Vector of surrogate marker indicator column names at each time point.}
-  \item{binary_lrnr}{A binary outcome learner (e.g., a classification model) used to estimate binary nuisance parameters such as hazards and censoring probabilities.}
-  \item{cont_lrnr}{A continuous outcome learner (e.g., regression model) used to estimate conditional expectations.}
-  \item{t0}{The time index at which the causal effect is evaluated. Defaults to the last time point.}
-  \item{e}{Optional; the name of the column containing estimated treatment propensity scores. If \code{NULL}, they are estimated.}
-  \item{gamma1}{Optional; vector of column names for estimated censoring probabilities under treatment. If \code{NULL}, they are estimated or assumed to be 1.}
-  \item{gamma0}{Optional; vector of column names for estimated censoring probabilities under control. If \code{NULL}, they are estimated or assumed to be 1.}
-  \item{mu1}{Optional; vector of column names for hazards under treatment. If \code{NULL}, they are estimated.}
-  \item{mu0}{Optional; vector of column names for hazards under control. If \code{NULL}, they are estimated.}
-  \item{pi}{Optional; vector of column names for estimated probabilities of surrogate marker under control. If \code{NULL}, they are estimated.}
-  \item{pistar}{Optional; vector of column names for estimated probabilities of surrogate marker under treatment. If \code{NULL}, they are estimated.}
-  \item{Q1}{Optional; vector of column names for conditional expectations of outcome under treatment. If \code{NULL}, they are estimated.}
-  \item{Q0}{Optional; vector of column names for conditional expectations of outcome under control. If \code{NULL}, they are estimated.}
-  \item{Qstar1}{Optional; vector of column names for pseudo-outcome expectations under treatment. If \code{NULL}, they are estimated.}
-  \item{Qstar0}{Optional; vector of column names for pseudo-outcome expectations under control. If \code{NULL}, they are estimated.}
-  \item{truncate_e}{Truncation threshold for propensity scores to avoid division by zero. Default is \code{1e-12}.}
-  \item{truncate_pi}{Truncation threshold for surrogate probabilities to avoid instability. Default is \code{1e-12}.}
-  \item{se_type}{Method to estimate standard errors: either \code{"asymptotic"} or \code{"bootstrap"}.}
-  \item{n_boot}{Number of bootstrap replicates if \code{se_type = "bootstrap"}. Required if using bootstrap.}
-  \item{alpha}{Significance level for confidence intervals. Default is \code{0.05}.}
-  \item{verbose}{Logical; if \code{TRUE}, prints progress messages.}
-  \item{retain_data}{Logical; if \code{TRUE}, retains full dataset with estimated components in the output.}
+  \item{data}{
+A dataframe containing all necessary variables for estimation. The functions in this package require the dataframe to be in a specific form. Therefore, you will need to reformat your dataset as follows. At a minimum, you will need variables in your dataframe that indicate (1) the folds for crossfitting; (2) a unique observation identifier; (3) baseline covariates, if there are none you must have a variable with all values equal to 1 to provide to the argument x below; (4) a variable indicating treatment group which should be 1 for treatment and 0 for control; (5) a set of variables that contain the surrogate marker value at each time point up to and including the landmark time, denoted t0; (6) a set of variables that indicate observation status at each time point where the surrogate marker is measured, in addition to the final time which is denoted as t; (7)  a set of variables that indicate primary outcome status at each time point where the surrogate marker is measured, in addition to the final time which is denoted as t. See the exampledata for an example where t0=4 and t=5.
 }
-\details{
-This function computes a plug-in estimator for the surrogate causal effect, i.e., the average causal effect of treatment on the primary outcome that is mediated by a surrogate marker, at a specific time point. The function optionally estimates nuisance parameters (e.g., hazards, expectations, surrogate probabilities) using cross-fitting and machine learning, and returns estimates with standard errors and confidence intervals.
+  \item{folds}{
+A vector defining crossfitting folds for nuisance estimation.
+}
+  \item{id}{
+A string giving the name of the column with unique unit IDs (e.g., individual ID).
+}
+  \item{x}{
+A character vector of covariate names to adjust for in nuisance estimation. At a minimum this must have one covariate equal to 1 for all individuals.
+}
+  \item{g}{
+A string indicating the column name of the treatment indicator with 1 for treatment and 0 for control.
+}
+ \item{a}{
+(Optional) A character vector of the column names indicating observation status at each time point. Specifically, A_t = 1 if the individual is still under observation (i.e., uncensored) at time t, meaning their outcome status could in principle be measured at that time. A value of 0 means the individual was censored prior to t. If not provided, assumed to be 1 for all time points.
+}
+\item{y}{
+A character vector of the column names indicating primary outcome status at each time point. Specifically, Y_t = 1 if the primary event (e.g., failure, relapse, death) has not yet occurred by time t, and the individual is still at risk. A value of 0 means the primary event occurred on or before time t.
+}
+
+  \item{s}{
+A character vector of the column names indicating the surrogate marker values measured at each time point, where the value is NA if the individual is no longer observable at that time point. 
+}
+     \item{binary_lrnr}{
+Learner object or specification used for estimating binary nuisance components (e.g., propensity scores, censoring).
+}
+  \item{cont_lrnr}{
+Learner object used for estimating continuous-valued outcome regressions.
+}
+  \item{t0}{Landmark time.}
+ \item{e}{
+(Optional) Column name or vector of propensity score estimates. If not provided, these will be estimated.
+}
+  \item{gamma1}{
+(Optional) Vector of column names for censoring probabilities under treatment. If not provided, these will be estimated.
+}
+  \item{gamma0}{
+(Optional) Vector of column names for censoring probabilities under control. If not provided, these will be estimated.
+}
+ \item{mu1}{(Optional) Names of estimated hazards under treatment. If not provided, these will be estimated.}
+  \item{mu0}{(Optional) Names of estimated hazards under control. If not provided, these will be estimated.}
+  \item{pi}{
+(Optional) Vector of column names giving estimated probabilities of observed surrogate values under observed treatment. If not provided, these will be estimated.
+}
+  \item{pistar}{
+(Optional) Vector of column names giving estimated probabilities under the reference distribution. If not provided, these will be estimated.
+}
+  \item{Q1}{(Optional) Names of estimated conditional means under treatment. If not provided, these will be estimated.}
+  \item{Q0}{(Optional) Names of estimated conditional means under control.If not provided, these will be estimated.}
+  \item{truncate_e}{
+Numeric truncation level for propensity scores to avoid division by near-zero values. Default is \code{1e-12}.
+}
+
+\item{truncate_pi}{Truncation threshold for surrogate probabilities to avoid instability. Default is \code{1e-12}.}
+   \item{se_type}{
+Type of standard error estimation, choices are "asymptotic" or "bootstrap".}
+ \item{n_boot}{
+(Optional unless se_type = "bootstrap") Number of boostrap samples.
+}
+\item{alpha}{Significance level for confidence intervals. Default is \code{0.05}.}
+    \item{verbose}{ Logical; if TRUE, print progress messages.
+}
+  \item{retain_data}{Logical; if TRUE, retains full dataset with estimated components in the output.}
 }
 \value{
-A \code{data.frame} with the following components:
-  \item{plugin_est}{The plug-in point estimate of the surrogate causal effect at time \code{t0}.}
+A dataframe with the following components:
+  \item{plugin_est}{The plug-in estimate of the residual treatment effect at the landmark time.}
   \item{plugin_se}{Standard error of the estimate, based on influence function or bootstrap.}
-  \item{ci_l}{Lower bound of the (1 - \code{alpha}) confidence interval.}
-  \item{ci_h}{Upper bound of the (1 - \code{alpha}) confidence interval.}
-  \item{if_data}{A list containing the dataset with the efficient influence function if \code{retain_data = TRUE}.}
+  \item{ci_l}{Lower bound of the confidence interval.}
+  \item{ci_h}{Upper bound of the confidence interval.}
+  \item{if_data}{A list containing the dataset with the efficient influence function if retain_data = TRUE.}
 }
 \references{
 Agniel D and Parast L (2025+). "Robust Evaluation of Longitudinal Surrogate Markers with Censored Data." Journal of the Royal Statistical Society: Series B, In press.
+}
+
+\examples{
+data(exampledata)
+names(exampledata)
+library(glue)
+library(gbm)
+library(mlr3extralearners)
+library(dplyr)
+
+tt <- 5
+t0 <- 4
+yvars <- paste0('Y_', 0:tt)
+lrn <- 'gbm'
+lrnc <- glue('regr.{lrn}')
+lrnb <- glue('classif.{lrn}')
+
+
+
+p_deltahat_s <- plugin_delta_s(
+    data = exampledata,
+    folds = 'ff',
+    id = 'ID',
+    x = 'X_0',
+    g = 'G_0',
+    a = paste0('A_', 0:tt),
+    y = yvars,
+    s = paste0('S_', 0:t0),
+    binary_lrnr = lrn(lrnb, predict_type = 'prob'),
+    cont_lrnr = lrn(lrnc),
+    t0=t0,
+    truncate_pi = 0.005,
+    truncate_e = 0.005,
+    verbose = FALSE
+  )
+p_deltahat_s
 }

@@ -41,17 +41,17 @@ estimate_Qstar_yj_tmle <- function(data, folds, id, x, g, a_jm1, a_j, y_jm1, y_j
          pistar_part = 1,
          pi_part = 1)
   for(gam in gammabar_j) {
-    # print(gam)
+    # cat(gam)
     updated_data <- mutate(updated_data,
            gamma_part = gamma_part/pmax(pmin(!!sym(gam), 1-epsilon), epsilon))
   }
   for(pist in pistar_jm1) {
-    # print(pist)
+    # cat(pist)
     updated_data <- mutate(updated_data,
            pistar_part = pistar_part*!!sym(pist))
   }
   for(pi in pi_jm1) {
-    # print(pi)
+    # cat(pi)
     updated_data <- mutate(updated_data,
            pi_part = pi_part/!!sym(pi))
   }
@@ -61,8 +61,8 @@ estimate_Qstar_yj_tmle <- function(data, folds, id, x, g, a_jm1, a_j, y_jm1, y_j
 
   # updated_data <- ungroup(updated_data)
   tmle_fm <- glue::glue('Q_y ~ offset(qlogis({Q_nm}))')
-  tmle_fit <- glm(tmle_fm, weights = wt_j, data = updated_data %>%
-                    filter(include_in_training), family = binomial)
+  tmle_fit <- suppressWarnings({glm(tmle_fm, weights = wt_j, data = updated_data %>%
+                    filter(include_in_training), family = binomial)})
   updated_data <- mutate(updated_data, !!Q_nm := plogis(qlogis(!!sym(Q_nm)) + coef(tmle_fit)),
                          !!Q_nm := case_when(abs(!!sym(Q_nm)) < epsilon ~ 0,
                                              abs(!!sym(Q_nm) - 1) < epsilon ~ 1,
@@ -113,28 +113,26 @@ estimate_Qstar_sj_tmle <- function(data, folds, id, x, g, a_jm1, a_j, y_jm1, y_j
          pistar_part = 1,
          pi_part = 1)
   for(gam in gammabar_j) {
-    # print(gam)
+    # cat(gam)
     updated_data <- mutate(updated_data,
            gamma_part = gamma_part/!!sym(gam))
   }
   for(pist in pistar_jm1) {
-    # print(pist)
+    # cat(pist)
     updated_data <- mutate(updated_data,
            pistar_part = pistar_part*!!sym(pist))
   }
   for(pi in pi_jm2) {
-    # print(pi)
+    # cat(pi)
     updated_data <- mutate(updated_data,
            pi_part = pi_part/!!sym(pi))
   }
   updated_data <- mutate(updated_data, wt_j = static_part*gamma_part*pistar_part*pi_part)
 
-  # browser()
 
-  # updated_data <- ungroup(updated_data)
   tmle_fm <- glue::glue('Q_s ~ offset(qlogis({Q_nm}))')
-  tmle_fit <- glm(tmle_fm, weights = wt_j, data = updated_data %>%
-                    filter(include_in_training), family = binomial)
+  tmle_fit <- suppressWarnings({glm(tmle_fm, weights = wt_j, data = updated_data %>%
+                    filter(include_in_training), family = binomial)})
   updated_data <- mutate(updated_data, !!Q_nm := plogis(qlogis(!!sym(Q_nm)) + coef(tmle_fit)))
 
   out_Q <- select(updated_data, !!id, !!Q_nm)
