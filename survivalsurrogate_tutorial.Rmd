@@ -2,6 +2,7 @@
 title: "Tutorial for main functions in survivalsurrogate package"
 output:
   html_document:
+    self_contained: true
 ---
 
 ```{r global_options, echo=FALSE}
