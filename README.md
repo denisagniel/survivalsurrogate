@@ -8,4 +8,4 @@
 
 More details will be available in the future in: Agniel D and Parast L (2025+). "Robust Evaluation of Longitudinal Surrogate Markers with Censored Data." Journal of the Royal Statistical Society: Series B, In press. 
 
-Go here to view a tutorial for this package: [survivalsurrogate Tutorial](https://htmlpreview.github.io/?https://github.com/denisagniel/survivalsurrogate/blob/main/survivalsurrogate_tutorial.html)
+Go here to view a tutorial for this package: [survivalsurrogate Tutorial](https://htmlpreview.github.io/?https://raw.githubusercontent.com/denisagniel/survivalsurrogate/refs/heads/master/survivalsurrogate_tutorial.html)
