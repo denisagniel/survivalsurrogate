@@ -73,17 +73,18 @@ Agniel D and Parast L (2025+). "Robust Evaluation of Longitudinal Surrogate Mark
 data(exampledata)
 names(exampledata)
 library(glue)
-library(gbm)
-library(mlr3extralearners)
+library(rpart)
+library(mlr3)
 library(dplyr)
+library(mlr3learners)
 
 tt <- 5
 t0 <- 4
 yvars <- paste0('Y_', 0:tt)
-lrn <- 'gbm'
-lrnc <- glue('regr.{lrn}')
-lrnb <- glue('classif.{lrn}')
+lrnc <- glue('regr.rpart')
+lrnb <- glue('classif.log_reg')
 
+\donttest{
 tml_deltahat <- tmle_delta(data = exampledata,
                              folds = 'ff',
                              id = 'ID',
@@ -97,4 +98,5 @@ tml_deltahat <- tmle_delta(data = exampledata,
                              truncate_e = 0.005,
                              verbose = FALSE)
 tml_deltahat 
+}
 }
