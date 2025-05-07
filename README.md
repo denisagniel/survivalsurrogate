@@ -1,7 +1,7 @@
 # survivalsurrogate <img src="hex_survivalsurrogate.png" align="right" height="220" alt="survivalsurrogate hex logo" />
 
 <!-- badges: start put back when on cran-->
-<!-- [![CRAN status](https://www.r-pkg.org/badges/version/SurrogateSeq)](https://CRAN.R-project.org/package=SurrogateSeq)  -->
+[![CRAN status](https://www.r-pkg.org/badges/version/survivalsurrogate)](https://CRAN.R-project.org/package=survivalsurrogate)
 <!-- badges: end -->
 
 `survivalsurrogate` is an `R` package with influence function-based methods to evaluate a longitudinal surrogate marker in a censored time-to-event outcome setting, with plug-in and targeted minimum loss-based estimation options.
