@@ -86,14 +86,9 @@ The goal is to estimate the proportion of the treatment effect on the primary ou
 tt <- 5
 t0 <- 4
 yvars <- paste0('Y_', 0:tt)
-#lrn <- 'gbm'
-#lrnc <- glue('regr.{lrn}')
-#lrnb <- glue('classif.{lrn}')
-
-lrn <- 'rpart'  
+lrn <- 'gbm'
 lrnc <- glue('regr.{lrn}')
 lrnb <- glue('classif.{lrn}')
-
 
 p_deltahat <- plugin_delta(
     data = exampledata,
