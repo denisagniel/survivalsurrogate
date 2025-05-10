@@ -4,7 +4,7 @@
 Residual treatment effect estimation using TMLE 
 }
 \description{
-Estimates the residual treatment effect using targeted minimum loss-based estimation (TMLE) for evaluating a longitudinal surrogate marker. 
+Estimates the residual treatment effect using targeted maximum likelihood estimation (TMLE) for evaluating a longitudinal surrogate marker. 
 }
 \usage{
 tmle_delta_s(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NULL, cont_lrnr 

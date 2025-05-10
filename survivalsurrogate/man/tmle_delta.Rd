@@ -4,7 +4,7 @@
 Treatment effect estimation using TMLE
 }
 \description{
-Estimates the treatment effect using targeted minimum loss-based estimation (TMLE). 
+Estimates the treatment effect using targeted maximum likelihood estimation (TMLE). 
 }
 \usage{
 tmle_delta(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NULL, cont_lrnr 

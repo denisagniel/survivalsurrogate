@@ -375,7 +375,7 @@ library(gbm)
 library(mlr3extralearners)</code></pre>
 <p>This package provides influence function-based methods to evaluate a
 longitudinal surrogate marker in a censored time-to-event outcome
-setting, with plug-in and targeted minimum loss-based estimation
+setting, with plug-in and targeted maximum likelihood estimation
 options. More details will be available in the future in: Agniel D and
 Parast L (2025+). “Robust Evaluation of Longitudinal Surrogate Markers
 with Censored Data.” Journal of the Royal Statistical Society: Series B,
@@ -495,9 +495,9 @@ estimate_R(p_deltahat$if_data[[1]]$eif, p_deltahat_s$if_data[[1]]$eif)</code></p
 <pre><code>## # A tibble: 3 × 5
 ##   estimand estimate     se   ci_l  ci_h
 ##   &lt;chr&gt;       &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;
-## 1 Delta       0.282 0.0323 0.219  0.346
-## 2 Delta_S     0.187 0.0616 0.0666 0.308
-## 3 R           0.336 0.139  0.0635 0.609</code></pre>
+## 1 Delta       0.279 0.0323 0.216  0.343
+## 2 Delta_S     0.167 0.0631 0.0436 0.291
+## 3 R           0.401 0.136  0.134  0.668</code></pre>
 <p>The output shows the estimate, standard error (se), and lower and
 upper bounds for the 95% confidence interval (ci_l and ci_h), for each
 estimand, where <strong>R</strong> is the proportion of the treatment
@@ -519,9 +519,9 @@ estimate_R(tml_deltahat$if_data[[1]]$eif, tml_deltahat_s$if_data[[1]]$eif)</code
 <pre><code>## # A tibble: 3 × 5
 ##   estimand estimate     se   ci_l  ci_h
 ##   &lt;chr&gt;       &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;
-## 1 Delta       0.276 0.0326 0.212  0.340
-## 2 Delta_S     0.150 0.0375 0.0769 0.224
-## 3 R           0.455 0.122  0.217  0.694</code></pre>
+## 1 Delta       0.275 0.0326 0.211  0.339
+## 2 Delta_S     0.140 0.0285 0.0845 0.196
+## 3 R           0.490 0.116  0.262  0.717</code></pre>
 <p>Again, the output shows the estimate, standard error (se), and lower
 and upper bounds for the 95% confidence interval (ci_l and ci_h), for
 each estimand, where <strong>R</strong> is the proportion of the
