@@ -5,10 +5,10 @@
 Estimates the proportion of the treatment effect explained
 }
 \description{
-Estimates the proportion of the treatment effect on the censored primary outcome that is explained by the longitudinal surrogate marker, given the estimated influence functions for delta and delta.s.
+Estimates the proportion of the treatment effect on the censored primary outcome that is explained by the longitudinal surrogate marker, given the estimated influence functions for the overall treatment effect (delta) and the residual treatment effect (delta_s).
 }
 \usage{
-estimate_R(delta_if, delta_s_if, delta = NULL, delta_s = NULL, se_type = "asymptotic", 
+estimate_R(delta_if, delta_s_if, delta = NULL, delta_s = NULL, se_type = "asymptotic",
 n_boot = NULL, alpha = 0.05)
 }
 \arguments{
@@ -16,12 +16,12 @@ n_boot = NULL, alpha = 0.05)
 Influence function estimates for delta.
 }
   \item{delta_s_if}{
-Influence function  estimates for delta.s.
+Influence function  estimates for delta_s.
 }
   \item{delta}{
 (Optional) Defaults to the mean of the delta influence function estimates.}
   \item{delta_s}{
-(Optional) Defaults to the mean of the delta.s influence function estimates.
+(Optional) Defaults to the mean of the delta_s influence function estimates.
 }
   \item{se_type}{
 Type of standard error estimation, choices are "asymptotic" or "bootstrap".}
@@ -35,6 +35,7 @@ Type of standard error estimation, choices are "asymptotic" or "bootstrap".}
 
 \value{
 A dataframe with the following components:
+  \item{estimand}{Indicates what estimand is estimated, including the treatment effect (delta), residual treatment effect (delta.s), and proportion of treatment effect explained (R) by the longitudinal surrogate marker.}
   \item{estimate}{Estimates of the treatment effect (delta), residual treatment effect (delta.s), and proportion of treatment effect explained (R) by the longitudinal surrogate marker.}
   \item{se}{Estimated standard errors.}
   \item{ci_l}{Lower bound of the confidence intervals.}
@@ -92,8 +93,8 @@ p_deltahat_s <- plugin_delta_s(
     verbose = FALSE
   )
 
-                                 
+
 estimate_R(p_deltahat$if_data[[1]]$eif,
-p_deltahat_s$if_data[[1]]$eif) 
+p_deltahat_s$if_data[[1]]$eif)
 }
 }

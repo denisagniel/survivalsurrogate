@@ -1,17 +1,17 @@
 \name{plugin_delta_s}
 \alias{plugin_delta_s}
 \title{
-Residual treatment effect estimation using the plug-in estimator 
+Residual treatment effect estimation using the plug-in estimator
 
 }
 \description{
-Estimates the residual treatment effect the plug-in estimator for evaluating a longitudinal surrogate marker. 
+Estimates the residual treatment effect the plug-in estimator for evaluating a longitudinal surrogate marker.
 }
 \usage{
-plugin_delta_s(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NULL, cont_lrnr 
-= NULL, t0 = length(s), e = NULL, gamma1 = NULL, gamma0 = NULL, mu1 = NULL, mu0 = NULL, 
-pi = NULL, pistar = NULL, Q1 = NULL, Q0 = NULL, truncate_e = 1e-12, truncate_pi = 1e-12, 
-se_type = "asymptotic", n_boot = NULL, alpha = 0.05, verbose = FALSE, retain_data 
+plugin_delta_s(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NULL, cont_lrnr
+= NULL, t0 = length(s), e = NULL, gamma1 = NULL, gamma0 = NULL, mu1 = NULL, mu0 = NULL,
+pi = NULL, pistar = NULL, Q1 = NULL, Q0 = NULL, truncate_e = 1e-12, truncate_pi = 1e-12,
+se_type = "asymptotic", n_boot = NULL, alpha = 0.05, verbose = FALSE, retain_data
 = FALSE)
 }
 \arguments{
@@ -38,7 +38,7 @@ A character vector of the column names indicating primary outcome status at each
 }
 
   \item{s}{
-A character vector of the column names indicating the surrogate marker values measured at each time point, where the value is NA if the individual is no longer observable at that time point. 
+A character vector of the column names indicating the surrogate marker values measured at each time point, where the value is NA if the individual is no longer observable at that time point.
 }
      \item{binary_lrnr}{
 Learner object or specification used for estimating binary nuisance components (e.g., propensity scores, censoring).
