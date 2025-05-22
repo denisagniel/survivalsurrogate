@@ -11,7 +11,7 @@ estimate_mu_j <- function(data, folds, id, x, g, a_jm1, a_j, y_j, y_jm1, sbar_jm
   } else {
     at_risk_data <- mutate(at_risk_data, include_in_training = !!sym(g) == gval)
   }
-  estimate_binary(at_risk_data, folds, id, c(x, sbar_jm1), y_j, 'include_in_training', lrnr, paste0('mu', gval, '_', j))
+  estimate_binary(at_risk_data, folds, id, c(x, sbar_jm1), y_j, "include_in_training", lrnr, paste0("mu", gval, "_", j))
 }
 
 estimate_mu_mat <- function(data, folds, id, x, g, all_a, all_y, all_s, gval, lrnr, slim = FALSE) {
@@ -21,9 +21,8 @@ estimate_mu_mat <- function(data, folds, id, x, g, all_a, all_y, all_s, gval, lr
     if (t == 1) {
       estimate_mu_j(data, folds, id, x, g, NULL, all_a[t], all_y[t], NULL, NULL, gval, t, lrnr)
     } else {
-      estimate_mu_j(data, folds, id, x, g, all_a[t-1], all_a[t], all_y[t], all_y[t-1],all_s[1:min(t0, (t-1))], gval, t, lrnr)
+      estimate_mu_j(data, folds, id, x, g, all_a[t - 1], all_a[t], all_y[t], all_y[t - 1], all_s[1:min(t0, (t - 1))], gval, t, lrnr)
     }
-
   })
   # mu_js_slim <- map(mu_js, ~select(., !!id, contains(paste0('mu', gval))))
   all_ids <- select(data, !!id)
