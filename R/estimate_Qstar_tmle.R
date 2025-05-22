@@ -71,8 +71,8 @@ estimate_Qstar_yj_tmle <- function(data, folds, id, x, g, a_jm1, a_j, y_jm1, y_j
 
   # updated_data <- ungroup(updated_data)
   tmle_fm <- glue::glue("Q_y ~ offset(qlogis({Q_nm}))")
-  tmle_fit <- glm(tmle_fm, weights = wt_j, data = updated_data %>%
-    filter(include_in_training), family = binomial)
+  tmle_fit <- suppressWarnings({glm(tmle_fm, weights = wt_j, data = updated_data %>%
+    filter(include_in_training), family = binomial)})
   updated_data <- mutate(
     updated_data, !!Q_nm := plogis(qlogis(!!sym(Q_nm)) + coef(tmle_fit)),
     !!Q_nm := case_when(
