@@ -161,7 +161,7 @@ if(verbose) {
             plugin_est = mean(eif),
             plugin_se = sd(eif)/sqrt(n()),
             if_data = list(if_ds)))
-            
+
 }
 if(!verbose){
 	invisible(capture.output(
@@ -330,6 +330,6 @@ if(!verbose){
             if_data = list(if_ds)))
   })))
   }
-            
+
 
 }
