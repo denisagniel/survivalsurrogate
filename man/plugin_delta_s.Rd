@@ -5,7 +5,7 @@ Residual treatment effect estimation using the plug-in estimator
 
 }
 \description{
-Estimates the residual treatment effect the plug-in estimator for evaluating a longitudinal surrogate marker.
+Estimates the residual treatment effect using the plug-in estimator for evaluating a longitudinal surrogate marker.
 }
 \usage{
 plugin_delta_s(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NULL, cont_lrnr
@@ -16,7 +16,7 @@ se_type = "asymptotic", n_boot = NULL, alpha = 0.05, verbose = FALSE, retain_dat
 }
 \arguments{
   \item{data}{
-A dataframe containing all necessary variables for estimation. The functions in this package require the dataframe to be in a specific form. Therefore, you will need to reformat your dataset as follows. At a minimum, you will need variables in your dataframe that indicate (1) the folds for crossfitting; (2) a unique observation identifier; (3) baseline covariates, if there are none you must have a variable with all values equal to 1 to provide to the argument x below; (4) a variable indicating treatment group which should be 1 for treatment and 0 for control; (5) a set of variables that contain the surrogate marker value at each time point up to and including the landmark time, denoted t0; (6) a set of variables that indicate observation status at each time point where the surrogate marker is measured, in addition to the final time which is denoted as t; (7)  a set of variables that indicate primary outcome status at each time point where the surrogate marker is measured, in addition to the final time which is denoted as t. See the exampledata for an example where t0=4 and t=5.
+A dataframe containing all necessary variables for estimation. The functions in this package require the dataframe to be in a specific form. Therefore, you will need to reformat your dataset as follows. At a minimum, you will need variables in your dataframe that indicate (1) the folds for crossfitting; (2) a unique observation identifier; (3) baseline covariates, if there are none you must have a variable with all values equal to 1 to provide to the argument x below; (4) a variable indicating treatment group which should be 1 for treatment and 0 for control; (5) a set of variables that contain the surrogate marker value at each time point up to and including the landmark time, denoted t0; (6) a set of variables that indicate observation status at each time point where the surrogate marker is measured, in addition to measurements beyond t0 up to a final time point t > t0; (7)  a set of variables that indicate primary outcome status at each time point where the surrogate marker is measured, in addition to measurements beyond t0 up to a final time point t > t0. See the exampledata for an example where t0=4 and t=5.
 }
   \item{folds}{
 A vector defining crossfitting folds for nuisance estimation.
@@ -46,9 +46,9 @@ Learner object or specification used for estimating binary nuisance components (
   \item{cont_lrnr}{
 Learner object used for estimating continuous-valued outcome regressions.
 }
-  \item{t0}{Landmark time.}
+  \item{t0}{Landmark time after which the surrogate is not observed.}
  \item{e}{
-(Optional) Column name or vector of propensity score estimates. If not provided, these will be estimated.
+(Optional) Column name of propensity score estimates. If not provided, these will be estimated.
 }
   \item{gamma1}{
 (Optional) Vector of column names for censoring probabilities under treatment. If not provided, these will be estimated.
@@ -59,10 +59,10 @@ Learner object used for estimating continuous-valued outcome regressions.
  \item{mu1}{(Optional) Names of estimated hazards under treatment. If not provided, these will be estimated.}
   \item{mu0}{(Optional) Names of estimated hazards under control. If not provided, these will be estimated.}
   \item{pi}{
-(Optional) Vector of column names giving estimated probabilities of observed surrogate values under observed treatment. If not provided, these will be estimated.
+(Optional) Vector of column names giving estimated 'propensity score' for treatment conditional on future values of the surrogate up to time k. See Agniel and Parast (2025+) for full definition. If not provided, these will be estimated.
 }
   \item{pistar}{
-(Optional) Vector of column names giving estimated probabilities under the reference distribution. If not provided, these will be estimated.
+(Optional) Vector of column names giving estimated 'propensity score' for treatment conditional on future values of the surrogate up to time k-1. See Agniel and Parast (2025+) for full definition. If not provided, these will be estimated.
 }
   \item{Q1}{(Optional) Names of estimated conditional means under treatment. If not provided, these will be estimated.}
   \item{Q0}{(Optional) Names of estimated conditional means under control.If not provided, these will be estimated.}
@@ -70,7 +70,7 @@ Learner object used for estimating continuous-valued outcome regressions.
 Numeric truncation level for propensity scores to avoid division by near-zero values. Default is \code{1e-12}.
 }
 
-\item{truncate_pi}{Truncation threshold for surrogate probabilities to avoid instability. Default is \code{1e-12}.}
+\item{truncate_pi}{Truncation threshold for surrogate-conditional propensity scores to avoid instability. Default is \code{1e-12}.}
    \item{se_type}{
 Type of standard error estimation, choices are "asymptotic" or "bootstrap".}
  \item{n_boot}{

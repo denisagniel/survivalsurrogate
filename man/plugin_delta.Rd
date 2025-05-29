@@ -45,7 +45,7 @@ Learner object or specification used for estimating binary nuisance components (
 Learner object used for estimating continuous-valued regressions.
 }
   \item{e}{
-(Optional) Column name or vector of propensity score estimates. If not provided, these will be estimated.
+(Optional) Column name of propensity score estimates. If not provided, these will be estimated.
 }
   \item{gamma1}{
 (Optional) Vector of column names for censoring probabilities under treatment. If not provided, these will be estimated.

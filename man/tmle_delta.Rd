@@ -4,16 +4,16 @@
 Treatment effect estimation using TMLE
 }
 \description{
-Estimates the treatment effect using targeted maximum likelihood estimation (TMLE). 
+Estimates the treatment effect using targeted maximum likelihood estimation (TMLE).
 }
 \usage{
-tmle_delta(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NULL, cont_lrnr 
-= NULL, e = NULL, gamma1 = NULL, gamma0 = NULL, truncate_e = 1e-12, verbose 
+tmle_delta(data, folds, id, x, g, a = NULL, y, s, binary_lrnr = NULL, cont_lrnr
+= NULL, e = NULL, gamma1 = NULL, gamma0 = NULL, truncate_e = 1e-12, verbose
 = FALSE)
 }
 \arguments{
  \item{data}{
-A dataframe containing all necessary variables for estimation. The functions in this package require the dataframe to be in a specific form. Therefore, you will need to reformat your dataset as follows. At a minimum, you will need variables in your dataframe that indicate (1) the folds for crossfitting; (2) a unique observation identifier; (3) baseline covariates, if there are none you must have a variable with all values equal to 1 to provide to the argument x below; (4) a variable indicating treatment group which should be 1 for treatment and 0 for control; (5) a set of variables that contain the surrogate marker value at each time point up to and including the landmark time, denoted t0; (6) a set of variables that indicate observation status at each time point where the surrogate marker is measured, in addition to the final time which is denoted as t; (7)  a set of variables that indicate primary outcome status at each time point where the surrogate marker is measured, in addition to the final time which is denoted as t. See the exampledata for an example where t0=4 and t=5.
+A dataframe containing all necessary variables for estimation. The functions in this package require the dataframe to be in a specific form. Therefore, you will need to reformat your dataset as follows. At a minimum, you will need variables in your dataframe that indicate (1) the folds for crossfitting; (2) a unique observation identifier; (3) baseline covariates, if there are none you must have a variable with all values equal to 1 to provide to the argument x below; (4) a variable indicating treatment group which should be 1 for treatment and 0 for control; (5) a set of variables that contain the surrogate marker value at each time point up to and including the landmark time, denoted t0; (6) a set of variables that indicate observation status at each time point where the surrogate marker is measured, in addition to measurements beyond t0 up to a final time point t > t0; (7)  a set of variables that indicate primary outcome status at each time point where the surrogate marker is measured, in addition to measurements beyond t0 up to a final time point t > t0. See the exampledata for an example where t0=4 and t=5.
 }
   \item{folds}{
 A vector defining crossfitting folds for nuisance estimation.
@@ -35,7 +35,7 @@ A character vector of the column names indicating primary outcome status at each
 }
 
   \item{s}{
-A character vector of the column names indicating the surrogate marker values measured at each time point, where the value is NA if the individual is no longer observable at that time point. 
+A character vector of the column names indicating the surrogate marker values measured at each time point, where the value is NA if the individual is no longer observable at that time point.
 }
    \item{binary_lrnr}{
 Learner object or specification used for estimating binary nuisance components (e.g., propensity scores, censoring).
@@ -44,7 +44,7 @@ Learner object or specification used for estimating binary nuisance components (
 Learner object used for estimating continuous-valued outcome regressions.
 }
   \item{e}{
-(Optional) Column name or vector of propensity score estimates. If not provided, these will be estimated.
+(Optional) Column name of propensity score estimates. If not provided, these will be estimated.
 }
   \item{gamma1}{
 (Optional) Vector of column names for censoring probabilities under treatment. If not provided, these will be estimated.
@@ -97,6 +97,6 @@ tml_deltahat <- tmle_delta(data = exampledata,
                              cont_lrnr = lrn(lrnc),
                              truncate_e = 0.005,
                              verbose = FALSE)
-tml_deltahat 
+tml_deltahat
 }
 }
