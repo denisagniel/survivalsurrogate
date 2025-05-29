@@ -361,12 +361,12 @@ will go through an example using the main functions in the
 <strong>survivalsurrogate</strong> package. First, install the package
 from CRAN and load it. We also load several other packages used in the
 document.</p>
-<pre class="r"><code>#install.packages(&quot;survivalsurrogate&quot;)
+<pre class="r"><code># install.packages(&#39;survivalsurrogate&#39;)
 library(survivalsurrogate)
 library(ggplot2)
 library(tidyr)
 library(dplyr)
-library(viridis) 
+library(viridis)
 library(glue)
 library(gbm)
 library(mlr3)
@@ -408,7 +408,7 @@ the variable indicate the primary outcome status at each time. For
 example, <strong>Y_2</strong> is 1 if the time of the primary outcome is
 greater than time 2. The variables <strong>A</strong> with a number
 indicate the observation status at each time. For example,
-<strong>A_2</strong> is 1 if the individual is still osbervable (not
+<strong>A_2</strong> is 1 if the individual is still observable (not
 censored) at time 2. The variables <strong>S</strong> with a number
 indicate the surrogate marker values at each time, up to and including
 t0=4. For example, <strong>S_2</strong> is the surrogate marker value at
@@ -476,84 +476,53 @@ specify a number for the bootstrap sample, for example
 <strong>n_boot=200</strong>.</p>
 <pre class="r"><code>tt &lt;- 5
 t0 &lt;- 4
-yvars &lt;- paste0(&#39;Y_&#39;, 0:tt)
-lrn &lt;- &#39;gbm&#39;
-lrnc &lt;- glue(&#39;regr.{lrn}&#39;)
-lrnb &lt;- glue(&#39;classif.{lrn}&#39;)
+yvars &lt;- paste0(&quot;Y_&quot;, 0:tt)
+lrn &lt;- &quot;gbm&quot;
+lrnc &lt;- glue(&quot;regr.{lrn}&quot;)
+lrnb &lt;- glue(&quot;classif.{lrn}&quot;)
 
-p_deltahat &lt;- plugin_delta(
-    data = exampledata,
-    folds = &#39;ff&#39;,
-    id = &#39;ID&#39;,
-    x = &#39;X_0&#39;,
-    g = &#39;G_0&#39;,
-    a = paste0(&#39;A_&#39;, 0:tt),
-    y = yvars,
-    s = paste0(&#39;S_&#39;, 0:t0),
-    binary_lrnr = lrn(lrnb, predict_type = &#39;prob&#39;),
-    cont_lrnr = lrn(lrnc)
-  )
+p_deltahat &lt;- plugin_delta(data = exampledata, folds = &quot;ff&quot;,
+    id = &quot;ID&quot;, x = &quot;X_0&quot;, g = &quot;G_0&quot;, a = paste0(&quot;A_&quot;, 0:tt),
+    y = yvars, s = paste0(&quot;S_&quot;, 0:t0), binary_lrnr = lrn(lrnb,
+        predict_type = &quot;prob&quot;), cont_lrnr = lrn(lrnc))
 
-p_deltahat_s &lt;- plugin_delta_s(
-    data = exampledata,
-    folds = &#39;ff&#39;,
-    id = &#39;ID&#39;,
-    x = &#39;X_0&#39;,
-    g = &#39;G_0&#39;,
-    a = paste0(&#39;A_&#39;, 0:tt),
-    y = yvars,
-    s = paste0(&#39;S_&#39;, 0:t0),
-    binary_lrnr = lrn(lrnb, predict_type = &#39;prob&#39;),
-    cont_lrnr = lrn(lrnc),
-    t0=t0
-  )
+p_deltahat_s &lt;- plugin_delta_s(data = exampledata, folds = &quot;ff&quot;,
+    id = &quot;ID&quot;, x = &quot;X_0&quot;, g = &quot;G_0&quot;, a = paste0(&quot;A_&quot;, 0:tt),
+    y = yvars, s = paste0(&quot;S_&quot;, 0:t0), binary_lrnr = lrn(lrnb,
+        predict_type = &quot;prob&quot;), cont_lrnr = lrn(lrnc), t0 = t0)
 
-                                 
-estimate_R(p_deltahat$if_data[[1]]$eif,
-                       p_deltahat_s$if_data[[1]]$eif) </code></pre>
+
+estimate_R(p_deltahat$if_data[[1]]$eif, p_deltahat_s$if_data[[1]]$eif)</code></pre>
 <pre><code>## # A tibble: 3 × 5
 ##   estimand estimate     se   ci_l  ci_h
 ##   &lt;chr&gt;       &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;
-## 1 Delta       0.274 0.0335 0.209  0.340
-## 2 Delta_S     0.159 0.0525 0.0561 0.262
-## 3 R           0.421 0.125  0.175  0.666</code></pre>
+## 1 Delta       0.282 0.0341 0.216  0.349
+## 2 Delta_S     0.174 0.0418 0.0922 0.256
+## 3 R           0.384 0.105  0.177  0.590</code></pre>
 <p>The output shows the estimate, standard error (se), and lower and
 upper bounds for the 95% confidence interval (ci_l and ci_h), for each
 estimand, where <strong>R</strong> is the proportion of the treatment
 effect explained.</p>
 <p>Now we use TMLE using the functions <strong>tmle_delta</strong> and
 <strong>tmle_delta_s</strong>:</p>
-<pre class="r"><code>tml_deltahat &lt;- tmle_delta(data = exampledata,
-                             folds = &#39;ff&#39;,
-                             id = &#39;ID&#39;,
-                             x = &#39;X_0&#39;,
-                             g = &#39;G_0&#39;,
-                             a = paste0(&#39;A_&#39;, 0:tt),
-                             y = yvars,
-                             s = paste0(&#39;S_&#39;, 0:t0),
-                             binary_lrnr = lrn(lrnb, predict_type = &#39;prob&#39;),
-                             cont_lrnr = lrn(lrnc))
+<pre class="r"><code>tml_deltahat &lt;- tmle_delta(data = exampledata, folds = &quot;ff&quot;,
+    id = &quot;ID&quot;, x = &quot;X_0&quot;, g = &quot;G_0&quot;, a = paste0(&quot;A_&quot;, 0:tt),
+    y = yvars, s = paste0(&quot;S_&quot;, 0:t0), binary_lrnr = lrn(lrnb,
+        predict_type = &quot;prob&quot;), cont_lrnr = lrn(lrnc))
 
-tml_deltahat_s &lt;- tmle_delta_s(data = exampledata,
-                                 folds = &#39;ff&#39;,
-                                 id = &#39;ID&#39;,
-                                 x = &#39;X_0&#39;,
-                                 g = &#39;G_0&#39;,
-                                 a = paste0(&#39;A_&#39;, 0:tt),
-                                 y = yvars,
-                                 s = paste0(&#39;S_&#39;, 0:t0),
-                                 binary_lrnr = lrn(lrnb, predict_type = &#39;prob&#39;),
-                                 cont_lrnr = lrn(lrnc))
+tml_deltahat_s &lt;- tmle_delta_s(data = exampledata, folds = &quot;ff&quot;,
+    id = &quot;ID&quot;, x = &quot;X_0&quot;, g = &quot;G_0&quot;, a = paste0(&quot;A_&quot;, 0:tt),
+    y = yvars, s = paste0(&quot;S_&quot;, 0:t0), binary_lrnr = lrn(lrnb,
+        predict_type = &quot;prob&quot;), cont_lrnr = lrn(lrnc))
 
-                                 
-estimate_R(tml_deltahat$if_data[[1]]$eif,
-                       tml_deltahat_s$if_data[[1]]$eif) </code></pre>
+
+estimate_R(tml_deltahat$if_data[[1]]$eif, tml_deltahat_s$if_data[[1]]$eif)</code></pre>
 <pre><code>## # A tibble: 3 × 5
 ##   estimand estimate     se   ci_l  ci_h
 ##   &lt;chr&gt;       &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;
-## 1 Delta       0.278 0.0334 0.212  0.343
-## 2 Delta_S     0.147 0.0282 0.0914 0.202
-## 3 R           0.472 0.119  0.239  0.705</code></pre>
+## 1 Delta       0.277 0.0326 0.213  0.341
+## 2 Delta_S     0.162 0.0389 0.0859 0.238
+## 3 R           0.414 0.123  0.173  0.655</code></pre>
 <p>Again, the output shows the estimate, standard error (se), and lower
 and upper bounds for the 95% confidence interval (ci_l and ci_h), for
 each estimand, where <strong>R</strong> is the proportion of the
