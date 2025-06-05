@@ -76,7 +76,7 @@ A dataframe with the following components:
   \item{if_data}{(Optional) Full dataset joined with estimated influence function contributions.}
 }
 \references{
-Agniel D and Parast L (2025+). "Robust Evaluation of Longitudinal Surrogate Markers with Censored Data." Journal of the Royal Statistical Society: Series B, In press.
+Agniel D and Parast L (2025). "Robust Evaluation of Longitudinal Surrogate Markers with Censored Data." Journal of the Royal Statistical Society: Series B; \doi{10.1093/jrsssb/qkae119}.
 }
 \examples{
 data(exampledata)

@@ -67,7 +67,7 @@ A dataframe with the following components:
   \item{if_data}{A nested data frame containing the influence function contributions for each observation.}
 }
 \references{
-Agniel D and Parast L (2025+). "Robust Evaluation of Longitudinal Surrogate Markers with Censored Data." Journal of the Royal Statistical Society: Series B, In press.
+Agniel D and Parast L (2025). "Robust Evaluation of Longitudinal Surrogate Markers with Censored Data." Journal of the Royal Statistical Society: Series B; \doi{10.1093/jrsssb/qkae119}.
 }
 \examples{
 data(exampledata)

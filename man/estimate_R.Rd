@@ -42,7 +42,7 @@ A dataframe with the following components:
    \item{ci_h}{Upper bound of the confidence intervals.}
 }
 \references{
-Agniel D and Parast L (2025+). "Robust Evaluation of Longitudinal Surrogate Markers with Censored Data." Journal of the Royal Statistical Society: Series B, In press.
+Agniel D and Parast L (2025). "Robust Evaluation of Longitudinal Surrogate Markers with Censored Data." Journal of the Royal Statistical Society: Series B; \doi{10.1093/jrsssb/qkae119}.
 }
 
 \examples{
