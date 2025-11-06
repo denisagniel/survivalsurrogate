@@ -23,11 +23,11 @@ library(gbm)
 library(mlr3)
 library(rpart)
 library(gbm)
-library(mlr3extralearners)
-
+library(mlr3learners)
+library(purrr)
 ```
 
-This package provides influence function-based methods to evaluate a longitudinal surrogate marker in a censored time-to-event outcome setting, with plug-in and targeted maximum likelihood estimation options. More details will be available in the future in: Agniel D and Parast L (2025+). "Robust Evaluation of Longitudinal Surrogate Markers with Censored Data." Journal of the Royal Statistical Society: Series B, In press.
+This package provides influence function-based methods to evaluate a longitudinal surrogate marker in a censored time-to-event outcome setting, with plug-in and targeted maximum likelihood estimation options. More details will be available in the future in: Agniel D and Parast L (2025). "Robust Evaluation of Longitudinal Surrogate Markers with Censored Data." Journal of the Royal Statistical Society: Series B, 87(3): 891-907.
 
 The functions in this package expect the data in a certain format. Specifically, **data** must be a dataframe with variables that indicate: (1) the folds for crossfitting; (2) a unique observation identifier; (3) baseline covariates, if there are none you must have a variable with all values equal to 1 to provide to the argument **x** below; (4) a variable indicating treatment group which should be 1 for treatment and 0 for control; (5) a set of variables that contain the surrogate marker value at each time point up to and including the landmark time, denoted t0; (6) a set of variables that indicate observation status at each time point where the surrogate marker is measured, in addition to measurements beyond t0 up to a final time point t > t0; (7)  a set of variables that indicate primary outcome status at each time point where the surrogate marker is measured, in addition to measurements beyond t0 up to a final time point t > t0. The **exampledata** in the package has the required format where t0=4 and t=5. Let's take a look. 
 
@@ -83,12 +83,11 @@ ggplot(df_long, aes(x = Time, y = S_value, group = ID, color = factor(G_0))) +
 The goal is to estimate the proportion of the treatment effect on the primary outcome at time t=5 that is explained by the longitudinal surrogate marker up to t0=4. Values close to 1 indicate a strong surrogate whereas values close to 0 indicate a weak surrogate. The package offers estimation via a plug-in estimator or targeted maximum likelihood estimation (TMLE). Let's start with the plug-in estimator. In the code below, we set up t as tt=5 and t0 as t0=4; we set the learner to be gbm (generalized boosted model); and specify which variables indicate the **Y**, **A**, and **S**. We first estimate the treatment effect on the primary outcome (delta) using **plugin_delta**, and then the residual treatment effect (delta_s) using **plugin_delta_s**. Next, we give these results to the **estimate_R** function to calculate the proportion. The default method for variance estimation is "asymptotic", but you can change this to the bootstrap by specifying **se_type = "bootstrap"** in the arguments; if you do this, you will need to specify a number for the bootstrap sample, for example **n_boot=200**.
 
 ```{r}
-tt <- 5
-t0 <- 4
+tt <- 4
+t0 <- 3
 yvars <- paste0('Y_', 0:tt)
-lrn <- 'gbm'
-lrnc <- glue('regr.{lrn}')
-lrnb <- glue('classif.{lrn}')
+lrnc <- glue('regr.rpart')
+lrnb <- glue('classif.log_reg')
 
 p_deltahat <- plugin_delta(
     data = exampledata,

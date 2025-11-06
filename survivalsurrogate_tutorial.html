@@ -372,14 +372,15 @@ library(gbm)
 library(mlr3)
 library(rpart)
 library(gbm)
-library(mlr3extralearners)</code></pre>
+library(mlr3learners)
+library(purrr)</code></pre>
 <p>This package provides influence function-based methods to evaluate a
 longitudinal surrogate marker in a censored time-to-event outcome
 setting, with plug-in and targeted maximum likelihood estimation
 options. More details will be available in the future in: Agniel D and
-Parast L (2025+). “Robust Evaluation of Longitudinal Surrogate Markers
+Parast L (2025). “Robust Evaluation of Longitudinal Surrogate Markers
 with Censored Data.” Journal of the Royal Statistical Society: Series B,
-In press.</p>
+87(3): 891-907.</p>
 <p>The functions in this package expect the data in a certain format.
 Specifically, <strong>data</strong> must be a dataframe with variables
 that indicate: (1) the folds for crossfitting; (2) a unique observation
@@ -474,12 +475,11 @@ change this to the bootstrap by specifying <strong>se_type =
 “bootstrap”</strong> in the arguments; if you do this, you will need to
 specify a number for the bootstrap sample, for example
 <strong>n_boot=200</strong>.</p>
-<pre class="r"><code>tt &lt;- 5
-t0 &lt;- 4
+<pre class="r"><code>tt &lt;- 4
+t0 &lt;- 3
 yvars &lt;- paste0(&quot;Y_&quot;, 0:tt)
-lrn &lt;- &quot;gbm&quot;
-lrnc &lt;- glue(&quot;regr.{lrn}&quot;)
-lrnb &lt;- glue(&quot;classif.{lrn}&quot;)
+lrnc &lt;- glue(&quot;regr.rpart&quot;)
+lrnb &lt;- glue(&quot;classif.log_reg&quot;)
 
 p_deltahat &lt;- plugin_delta(data = exampledata, folds = &quot;ff&quot;,
     id = &quot;ID&quot;, x = &quot;X_0&quot;, g = &quot;G_0&quot;, a = paste0(&quot;A_&quot;, 0:tt),
@@ -494,11 +494,11 @@ p_deltahat_s &lt;- plugin_delta_s(data = exampledata, folds = &quot;ff&quot;,
 
 estimate_R(p_deltahat$if_data[[1]]$eif, p_deltahat_s$if_data[[1]]$eif)</code></pre>
 <pre><code>## # A tibble: 3 × 5
-##   estimand estimate     se   ci_l  ci_h
-##   &lt;chr&gt;       &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;
-## 1 Delta       0.282 0.0341 0.216  0.349
-## 2 Delta_S     0.174 0.0418 0.0922 0.256
-## 3 R           0.384 0.105  0.177  0.590</code></pre>
+##   estimand estimate     se     ci_l  ci_h
+##   &lt;chr&gt;       &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;
+## 1 Delta       0.255 0.0341  0.188   0.322
+## 2 Delta_S     0.107 0.0563 -0.00325 0.217
+## 3 R           0.580 0.120   0.344   0.816</code></pre>
 <p>The output shows the estimate, standard error (se), and lower and
 upper bounds for the 95% confidence interval (ci_l and ci_h), for each
 estimand, where <strong>R</strong> is the proportion of the treatment
@@ -520,9 +520,9 @@ estimate_R(tml_deltahat$if_data[[1]]$eif, tml_deltahat_s$if_data[[1]]$eif)</code
 <pre><code>## # A tibble: 3 × 5
 ##   estimand estimate     se   ci_l  ci_h
 ##   &lt;chr&gt;       &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;
-## 1 Delta       0.277 0.0326 0.213  0.341
-## 2 Delta_S     0.162 0.0389 0.0859 0.238
-## 3 R           0.414 0.123  0.173  0.655</code></pre>
+## 1 Delta       0.283 0.0288 0.226  0.339
+## 2 Delta_S     0.127 0.0523 0.0246 0.230
+## 3 R           0.550 0.117  0.321  0.779</code></pre>
 <p>Again, the output shows the estimate, standard error (se), and lower
 and upper bounds for the 95% confidence interval (ci_l and ci_h), for
 each estimand, where <strong>R</strong> is the proportion of the
