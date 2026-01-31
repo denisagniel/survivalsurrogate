@@ -371,16 +371,15 @@ library(glue)
 library(gbm)
 library(mlr3)
 library(rpart)
-library(gbm)
 library(mlr3learners)
 library(purrr)</code></pre>
 <p>This package provides influence function-based methods to evaluate a
 longitudinal surrogate marker in a censored time-to-event outcome
 setting, with plug-in and targeted maximum likelihood estimation
-options. More details will be available in the future in: Agniel D and
-Parast L (2025). “Robust Evaluation of Longitudinal Surrogate Markers
-with Censored Data.” Journal of the Royal Statistical Society: Series B,
-87(3): 891-907.</p>
+options. More details are available in: Agniel D and Parast L (2025).
+“Robust Evaluation of Longitudinal Surrogate Markers with Censored
+Data.” Journal of the Royal Statistical Society: Series B, 87(3):
+891-907.</p>
 <p>The functions in this package expect the data in a certain format.
 Specifically, <strong>data</strong> must be a dataframe with variables
 that indicate: (1) the folds for crossfitting; (2) a unique observation
@@ -405,7 +404,7 @@ names(exampledata)</code></pre>
 <strong>X_0</strong> is the single baseline covariate,
 <strong>G_0</strong> is the treatment indicator, and <strong>ff</strong>
 indicates the folds. The variables <strong>Y</strong> with a number are
-the variable indicate the primary outcome status at each time. For
+the variables indicate the primary outcome status at each time. For
 example, <strong>Y_2</strong> is 1 if the time of the primary outcome is
 greater than time 2. The variables <strong>A</strong> with a number
 indicate the observation status at each time. For example,
@@ -462,7 +461,7 @@ surrogate marker up to t0=4. Values close to 1 indicate a strong
 surrogate whereas values close to 0 indicate a weak surrogate. The
 package offers estimation via a plug-in estimator or targeted maximum
 likelihood estimation (TMLE). Let’s start with the plug-in estimator. In
-the code below, we set up t as tt=5 and t0 as t0=4; we set the learner
+the code below, we set up t as tt=4 and t0 as t0=3; we set the learner
 to be gbm (generalized boosted model); and specify which variables
 indicate the <strong>Y</strong>, <strong>A</strong>, and
 <strong>S</strong>. We first estimate the treatment effect on the
